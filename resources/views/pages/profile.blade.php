@@ -22,91 +22,119 @@
 @endsection
 
 @section('content')
-    <div class="item">
-        <div class="img-bg">
-            <img src="{{$user->background}}" alt=".">
-        </div>
-        <div class="section-profile">
-            <div class="section-profile-header">
-                <p>
-                    @if($user->me)
-                    My Profile
-                        @else
-                    {{$user->name}}
-                        @endif
-                </p>
-                <hr>
-            </div>
-            <div class="section-profile-body">
-                <div class="section-profile-left">
-                    <div class="pos-rlt text-center">
-                        <img src="{{$user->photo}}" alt="." class="photo save-aspect">
-                    </div>
-                    @if(!$user->me)
-                    <a class="md-btn md-raised mb-2 w-md green" href="{{url('/messages')}}?user={{$user->id}}"><i class="fa fa-comment-o"></i>&nbsp;&nbsp;Message</a>
-                        @endif
-                </div>
-                <div class="section-profile-right">
-                    <span style="display:flex; justify-content: space-between;">
-                        <strong>{{$user->name}}</strong>
+
+    <div class="full-ob" style="background-image:url({{$user->background}});">
+
+        <div class="container section-profile full-ob">
+            <div class="row pt-3 pb-5">
+                <div class="col-md-6 offset-md-3 col-sm-8 offset-sm-2">
+                    <h2 class="profile-name text-center">
                         @if($user->me)
-                        <a href="{{url('/settings')}}"><i class="fa fa-edit align-right"></i></a>
+                            My Profile
+                        @else
+                            {{$user->name}}
                         @endif
-                    </span>
+                    </h2>
+                    <hr>
+                </div>
+            </div>
+
+            <div class="row py-3">
+                <div class="col-md-5 col-sm-6">
+                    <div class="pos-rlt text-center">
+                        <img src="{{$user->photo}}" alt="." class="profil-photo save-aspect img-responsive">
+                    </div>
+                    <div class="text-center mt-5">
+                        @if(!$user->me)
+                            <a class="md-btn md-raised mb-2 w-md green"
+                               href="{{url('/messages')}}?user={{$user->id}}"><i
+                                        class="fa fa-comment-o"></i>&nbsp;&nbsp;Message</a>
+                        @endif
+                    </div>
+                </div>
+                <div class="col-md-7 col-sm-6">
+
+                    <div class="d-flex flex-wrap" style="justify-content: space-between;">
+
+                        <h4>{{$user->name}}</h4>
+                        @if($user->me)
+                            <a href="{{url('/settings')}}" class="edit-profile-link"><i
+                                        class="fa fa-edit align-right"></i></a>
+                        @endif
+                    </div>
 
 
                     @if($user->type == 'creator')
-                    <div class="">
-                        {{$user->profession}}
-                    </div>
+                        <div class="row py-2">
+                            <p class="col-md-12"> {{$user->profession}}</p>
+                        </div>
+
+                        <div class="row py-2">
+                            <p class="col-md-12">{{$user->description}}</p>
+                        </div>
 
 
-                    @if($user->me)
-                    <div class="" style="color: #000; margin-top: 30px; font-size: 12pt;">
-                        <i class="fa fa-user"></i> &nbsp;About
-                    </div>
-                    <hr>
-                    @endif
+                        <div class="row py-2">
+                            <div class="col-sm-4">
+                                <h5>Rate:</h5>
+                            </div>
+                            <div class="col-md-8"><p>${{$user->rate}}</p></div>
+                        </div>
 
-                    @if($user->me)
-                    <strong>Description</strong>
-                    @endif
-                    <br>
-                    {{$user->description}}<br><br>
-
-                    <strong>Rate</strong><br>
-                    ${{$user->rate}}<br><br>
-
-                    <strong>Do not send</strong><br>
-                    {{$user->do_not_send}}<br><br>
+                        <div class="row py-2">
+                            <div class="col-sm-4">
+                                <h5>Do not send:</h5>
+                            </div>
+                            <div class="col-md-8">
+                                <p>{{$user->do_not_send}}</p>
+                            </div>
+                        </div>
 
                     @else
 
-                    <div class="" style="color: #000; margin-top: 30px; font-size: 12pt;">
-                        <i class="fa fa-user"></i> &nbsp;About
-                    </div>
-                    <hr>
+                        <div class="row py-2">
+                            <div class="col-sm-4">
+                                <h5>Date of birth:</h5>
+                            </div>
+                            <div class="col-md-8"><p>{{$user->birthday}}</p></div>
+                        </div>
 
-                    <span style="display:inline-block; width: 150px;"><strong>Date of birth</strong></span>
-                    {{$user->birthday}}<br><br>
+                        <div class="row py-2">
+                            <div class="col-sm-4">
+                                <h5>Gender:</h5>
+                            </div>
+                            <div class="col-md-8">
+                                <p>{{$user->gender}}</p>
+                            </div>
+                        </div>
 
-                    <span style="display:inline-block; width: 150px;"><strong style="min-width: 150px;">Gender</strong></span>
-                    {{$user->gender}}<br><br>
+                        <div class="row py-2">
+                            <div class="col-sm-4">
+                                <h5>Education:</h5>
+                            </div>
+                            <div class="col-md-8"><p>{{$user->education}}</p></div>
+                        </div>
 
-                    <span style="display:inline-block; width: 150px;"><strong>Education</strong></span>
-                    {{$user->education}}<br><br>
+                        <div class="row py-2">
+                            <div class="col-sm-4">
+                                <h5>Profession:</h5>
+                            </div>
+                            <div class="col-md-8">
+                                <p>{{$user->profession}}</p>
+                            </div>
+                        </div>
 
-                    <span style="display:inline-block; width: 150px;"><strong>Profession</strong></span>
-                    {{$user->profession}}<br><br>
-
-                    <strong>Description</strong><br>
-                    {{$user->description}}<br><br>
+                        <div class="row py-2">
+                            <p class="col-md-12">{{$user->description}}</p>
+                        </div>
 
                     @endif
 
                 </div>
             </div>
+
         </div>
+
     </div>
 @endsection
 

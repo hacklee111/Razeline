@@ -6,68 +6,62 @@
         <div class="img-bg">
             <img src="<?=('image/home-background.jpg')?>" alt=".">
         </div>
-        <div class="p-0">
-            <div class="row mt-12">
-                <div class="col-sm-12">
-                    <div class="home-section-column" style="height: 500px;">
-                        <h1 style=" text-align: center; color:#fff">GET PAID FOR CONNECTING<br>WITH YOUR FANS</h1>
-
-                        <div>
-                            <a href="{{url('/register')}}" class="btn btn-danger" style="position: relative; top:-30px; padding: 20px;"><h4>Create Your Account</h4></a>
-                        </div>
-                    </div>
+        <div class="row mt-12">
+            <div class="col-md-12">
+                <div class="home-section-column home-banner">
+                    <h1 style=" text-align: center; color:#fff">GET PAID FOR CONNECTING<br>WITH YOUR FANS</h1>
+                    <a href="{{url('/register')}}" class="btn btn-danger"><h4>Create Your Account</h4></a>
                 </div>
             </div>
         </div>
     </div>
 
     <div class="item">
-        <div class="p-0"  style="background-color: #ffffff;">
-            <div class="home-section-column">
-                <h2>About</h2>
-                <div class="intro">
-                    <h4>RazeLine allows you to get paid<br> to take prescreened messages<br>from your fans as either an one<br>
-                        time payment or a super fan per<br>month recurring payment </h4>
-                    <img src="<?=asset('image/about.jpg')?>">
+        <div class="p-2 p-sm-5   bg-white home-section-column">
+            <h2>What is Razeline</h2>
 
+            <div class="intro container text-sm-left text-center my-3">
+                <div class="row">
+                    <div class="col-md-6 col-sm-12 mb-5 mb-sm-3 mb-md-0">
+                        <h4 class="vertical-center">RazeLine allows you to get paid to take prescreened messages from
+                            your fans as either an one
+                            time payment or a super fan per month recurring payment </h4>
+                    </div>
+                    <div class="col-md-6 col-sm-12 mb-5 mb-sm-3 mb-md-0">
+                        <img src="<?=asset('image/about.jpg')?>" class="img-responsive m-auto img-fluid">
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="p-4">
-            <div class="home-section-column">
-                <h2>How it works</h2>
-                <div class="helps">
-                    <div>
+        <div class="p-2 p-sm-5 home-section-column">
+
+            <h2>How it works</h2>
+            <div class="helps container">
+                <div class="row">
+                    <div class="col-md-4 text-center">
                         <img src="<?=asset('image/like.png')?>">
-                        <h4>Share your RazeLine<br>profile link on your<br>social media pages so<br>your fans can support<br>you.</h4>
+                        <h4>Share your RazeLine profile link on your social media pages so your fans can
+                            support you.</h4>
                     </div>
-                    <div>
+                    <div class="col-md-4 text-center">
                         <img src="<?=asset('image/message.png')?>">
-                        <h4>Receive prescreened 140<br>character private<br>messages from your fans<br>
-                            and personally reply within<br>7 days for a one time<br>payment or add on<br>exclusive content for a<br>monthly recurring<br>payment.</h4>
+                        <h4>Receive prescreened 140 character private messages from your fans and personally reply
+                            within 7 days for a one time payment or add on exclusive
+                            content for a monthly recurring payment.</h4>
                     </div>
-                    <div>
+                    <div class="col-md-4 text-center">
                         <img src="<?=asset('image/payment.png')?>">
                         <h4>Get Paid.</h4>
                     </div>
-
                 </div>
-                <div class="fee"><h4>RazeLine takes out 25% for each message<br>response and an industry low 5% for monthly<br>subscriptions.</h4></div>
-
 
             </div>
-        </div>
-
-        <div class="p-0">
-            <div class="back-to-top-container">
-                <h5>
-                    Back to top &nbsp;
-                </h5>
-                <a href="#"><img src="<?=asset('image/back_to_top.png')?>"></a>
+            <div class="fee text-center">
+                <h4>RazeLine takes out 25% for each message<br>response and an industry low 5%
+                    for monthly<br>subscriptions.</h4>
             </div>
         </div>
-
-
     </div>
+
 @endsection

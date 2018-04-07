@@ -1,128 +1,22 @@
 @extends('layouts.app')
-
 @section('header')
-    <style>
-        .img-bg {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-        }
-
-        .img-bg img {
-            width: 100%;
-            min-height: 500px;
-        }
-
-        .home-section-column {
-            display: flex;
-            flex-direction: column;
-            justify-content: space-around;
-            align-items: center;
-        }
-
-        h2 {
-            margin-top: 50px;
-            margin-bottom: 50px;
-            color: #2e3192;
-        }
-
-        .intro {
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-
-        .intro div {
-            margin: 20px 60px 20px;
-        }
-
-        .intro img {
-            margin: 20px 60px 20px;
-        }
-
-        .helps {
-            display: flex;
-            justify-content: space-around;
-            flex-wrap: wrap;
-            width: 100%;
-            padding-left: 50px;
-            padding-right: 50px;
-        }
-
-        .helps img {
-            margin: 20px 0px;
-        }
-
-        .helps div {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-
-        .fee {
-            margin-top: 50px;
-        }
-
-        .back-to-top-container {
-            display: flex;
-            align-items: flex-end;
-            justify-content: flex-end;
-            padding-top: 30px;
-            padding-right: 100px;
-            width: 100%;
-            background-color: #fff;
-        }
-
-        .footer {
-            display: flex;
-            justify-content: space-between;
-            width: 100%;
-            padding: 30px 100px;
-            flex-wrap: wrap;
-            background-color: #2e3192;
-        }
-
-        .footer div {
-            display: flex;
-            justify-content: space-around;
-            flex-wrap: wrap;
-        }
-
-        .footer img, .footer p {
-            margin: 5px;
-            color: #fff;
-        }
-
-        .section-creators {
-            display: flex;
-            justify-content: space-around;
-            flex-wrap: wrap;
-            padding: 1em;
-        }
-
-        .section-creators > div {
-            width: 30%;
-        }
-    </style>
 @endsection
 @section('content')
-
-    <div class="d-flex flex" data-plugin="chat">
-        <div class="fade aside aside-sm" id="content-aside">
-            <div class="d-flex flex-column w-xl b-r white modal-dialog" id="chat-nav">
+    <div class="d-flex flex full-ob" data-plugin="chat">
+        <div class="fade aside aside-sm" id="content-aside-chat">
+            <div class="d-flex flex-column w-xl b-r b-r-3x white modal-dialog pt-3" id="chat-nav">
                 <div class="scrollable hover">
                     <div class="list inset">
 
                         <div class="p-2 px-3 text-muted text-sm">Messages</div>
 
                         @foreach($channels as $c)
-                            <div class="list-item " data-id="item-14">
-	      			      <span class="w-40 avatar circle brown">
-	      			        <img src="{{url($c->opponent_photo)}}" class="img-cover w-40 circle" alt=".">
-	      			      </span>
+                            <div class="list-item @if($c->id == $active_channel->id) active @endif" data-id="item-14">
+	      			            <span class="w-56 avatar circle brown">
+                                    <a href="{{url('/profile').'?user='.base64_encode($c->fan_id)}}">
+	      			                    <img src="{{url($c->opponent_photo)}}" class="img-cover w-56 circle" alt=".">
+                                    </a>
+	      			            </span>
                                 <div class="list-body">
                                     <a href="{{url('/messages')}}?channel={{$c->id}}"
                                        class="item-title _500">{{$c->opponent_name}}</a>
@@ -152,30 +46,24 @@
         <div class="d-flex flex" id="content-body">
             <div class="d-flex flex-column flex" id="chat-list">
                 <div class="navbar flex-nowrap white lt box-shadow">
-                    <a data-toggle="modal" data-target="#content-aside" data-modal class="mr-1 d-md-none">
+                    <a data-toggle="modal" data-target="#content-aside-chat" data-modal class="mr-1 d-md-none">
 					<span class="btn btn-sm btn-icon primary">
 			      		<i class="fa fa-th"></i>
 			        </span>
                     </a>
 
                     <span class="text-md text-ellipsis flex">
-		        	@if($active_channel)
-                            {{$active_channel->receiver_name}}
+		        	    @if($active_channel)
+                            {{$active_channel->fan_name}}
                         @endif
-		        </span>
+		            </span>
                 </div>
-                <div class="scrollable hover">
+                <div class="scrollable hover app-content">
                     <div class="p-3">
-                        <div class="chat-list" style="height: 400px;">
+                        <div class="chat-list">
                             @if($active_channel)
                                 @foreach($messages as $m)
-                                    <div class="chat-item"
-                                         @if($m->mine)
-                                         data-class="alt"
-                                         @else
-                                         data-class
-                                            @endif
-                                    >
+                                    <div class="chat-item" @if($m->mine) data-class="alt" @endif >
                                         <a href="#" class="avatar w-40">
                                             <img src="{{url($m->sender_photo)}}" class="w-40 img-cover" alt=".">
                                         </a>
@@ -191,9 +79,6 @@
                                     </div>
                             @endforeach
                         @endif
-
-
-
                         <!--
                             <div class="chat-item" data-class>
                                 <a href="#" class="avatar w-40">
@@ -213,7 +98,7 @@
                         <div class="hide">
                             <div class="chat-item" id="chat-item" data-class>
                                 <a href="#" class="avatar w-40">
-                                    <img class="image" src="../assets/images/a0.jpg" alt=".">
+                                    <img class="image" src="{{asset('/assets/images/a0.jpg')}}" alt=".">
                                 </a>
                                 <div class="chat-body">
                                     <div class="chat-content rounded msg">
@@ -227,7 +112,6 @@
                 <div class="p-3 white lt b-t mt-auto" id="chat-form">
                     @if($active_channel)
                         <form method="post" action="{{url('/messages')}}/{{$active_channel->id}}/send" id="form-send">
-                            @endif
                             <input type="hidden" name="_token" value="{{ csrf_token() }}">
                             <div class="input-group">
                                 {{--<span class="input-group-btn">--}}
@@ -236,14 +120,16 @@
                                 {{--</button>--}}
                                 {{--</span>--}}
                                 <input type="text" class="form-control" placeholder="Message" id="newField"
-                                       name="message">
+                                       name="message" maxlength="140">
                                 <span class="input-group-btn">
-                            <button class="btn white b-a no-shadow" type="button" id="newBtn">
-                                <i class="fa fa-send text-success"></i>
-                            </button>
-		          	    </span>
+                                    <button class="btn white b-a no-shadow" type="button" id="newBtn">
+                                        <i class="fa fa-send text-success"></i>
+                                    </button>
+		          	            </span>
                             </div>
-                            @if($active_channel)
+                            <span id="max_warn"
+                                  class="small text-info"
+                                  style="display: none;">*MESSAGES CAN ONLY BE 140 CHARACTERS.</span>
                         </form>
                     @endif
                 </div>
@@ -251,7 +137,6 @@
             </div>
         </div>
     </div>
-
 
 @endsection
 
@@ -277,8 +162,28 @@
                 return false;
             }
         });
+    </script>
 
+    <script>
 
+        $(document).ready(function () {
+            //scroll down to last message
+            if ($('.chat-list .chat-item').length > 0) {
+                $('div.scrollable').animate({
+                    scrollTop: $(".chat-list .chat-item:last-child").offset().top
+                }, 2000);
+            }
+
+            //check character length
+            $("#newField").on('input', function () {
+                if ($(this).val().length >= 140) {
+                    $('#max_warn').fadeIn('slow');
+                } else {
+                    $('#max_warn').fadeOut('slow');
+                }
+            });
+
+        });
     </script>
 
 
@@ -392,7 +297,6 @@
                     });
 
 //                        notie.alert({type:1, text: 'Try say something' });
-
 
                 }
 

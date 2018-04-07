@@ -19,6 +19,7 @@ use Redirect;
 class HomeController extends Controller
 {
     private $_apiContext;
+
     /**
      * Create a new controller instance.
      *
@@ -56,18 +57,19 @@ class HomeController extends Controller
         ]);
     }
 
-    public function findCreators(Request $request) {
+    public function findCreators(Request $request)
+    {
         $creators = User::where('type', 'creator')->get();
 
-        if($request->has('keyword')) {
+        if ($request->has('keyword')) {
             $keyword = $request->input('keyword');
 
 
             $creators = User::where('type', 'creator')
-                ->where(function($query) use ($keyword) {
-                    $query->where('name', 'like', '%'.$keyword.'%')
-                        ->orWhere('profession', 'like', '%'.$keyword.'%')
-                        ->orWhere('description', 'like', '%'.$keyword.'%');
+                ->where(function ($query) use ($keyword) {
+                    $query->where('name', 'like', '%' . $keyword . '%')
+                        ->orWhere('profession', 'like', '%' . $keyword . '%')
+                        ->orWhere('description', 'like', '%' . $keyword . '%');
                 })->get();
 
         }
@@ -77,55 +79,79 @@ class HomeController extends Controller
         ]);
     }
 
-    public function showMessages(Request $request) {
+    public function showMessages(Request $request)
+    {
         $me = Auth::user();
         $mi = $me->id;
 
+        $type = $me->type;
+
         $active_channel = null;
-        if($request->has('user')) {
+        if ($request->has('user')) {
             $user_id = $request->input('user');
 
-            $channel = MessageChannel::where('creator_id', $user_id)
-                ->where('fan_id', $mi)
-                ->get()->first();
+            if ($type == "creator") {
+                //view customer profile and make channel
+                $channel = MessageChannel::where('creator_id', $mi)
+                    ->where('fan_id', $user_id)
+                    ->get()->first();
 
-            if($channel == null) {
-                $channel = new MessageChannel;
-                $channel->creator_id = $user_id;
-                $channel->fan_id = $mi;
-                $channel->last_message = "";
-                $channel->save();
+                if ($channel == null) {
+                    $channel = new MessageChannel;
+                    $channel->creator_id = $mi;
+                    $channel->fan_id = $user_id;
+                    $channel->last_message = "";
+                    $channel->save();
+                }
+
+                $active_channel = $channel;
+
+            } else {
+
+                //view creator profile and make channel
+                $channel = MessageChannel::where('creator_id', $user_id)
+                    ->where('fan_id', $mi)
+                    ->get()->first();
+
+                if ($channel == null) {
+                    $channel = new MessageChannel;
+                    $channel->creator_id = $user_id;
+                    $channel->fan_id = $mi;
+                    $channel->last_message = "";
+                    $channel->save();
+                }
+
+                $active_channel = $channel;
             }
-
-            $active_channel = $channel;
         } else {
-            if($request->has('channel')) {
+            if ($request->has('channel')) {
                 $channel_id = $request->input('channel');
                 $active_channel = MessageChannel::find($channel_id);
             }
         }
 
-        $channels = MessageChannel::where('creator_id', $mi)
-            ->orWhere('fan_id', $mi)
-            ->orderBy('updated_at', 'DESC')
+        $channels = MessageChannel::where(function ($query) use ($mi) {
+            $query->where('creator_id', $mi)
+                ->orWhere('fan_id', $mi);
+        })->orderBy('updated_at', 'DESC')
             ->get();
 
-        if($active_channel == null) {
+        if ($active_channel == null) {
             $active_channel = $channels->first();
         }
 
         $messages = [];
-        if($active_channel) {
+        if ($active_channel) {
             $channel_id = $active_channel->id;
             $messages = Message::where('channel_id', $channel_id)
-                ->where(function($query) {
+                ->where(function ($query) {
                     $query->where('status', Message::MESSAGE_STATUS_RESPONDED)
                         ->orWhere('status', Message::MESSAGE_STATUS_APPROVED);
                 })
                 ->get();
 
-            foreach($messages as $m) {
-                if($m->sender_id != $mi && $m->read != true) {
+            foreach ($messages as $m) {
+                if ($m->sender_id != $mi && $m->read != true) {
                     $m->read = true;
                     $m->save();
                 }
@@ -140,7 +166,8 @@ class HomeController extends Controller
     }
 
     //ajax call
-    public function sendMessage(Request $request, $id) {
+    public function sendMessage(Request $request, $id)
+    {
         $me = Auth::user();
         $mi = $me->id;
 
@@ -162,11 +189,11 @@ class HomeController extends Controller
         $fan_id = $channel->fan_id;
 
 
-        if($me->type == User::USER_TYPE_CREATOR || $me->subscription_available) {
+        if ($me->type == User::USER_TYPE_CREATOR || $me->subscription_available) {
 
             $message->status = Message::MESSAGE_STATUS_APPROVED;
 
-            if($me->type == User::USER_TYPE_CREATOR) {
+            if ($me->type == User::USER_TYPE_CREATOR) {
 
                 //when creator send message, mark all fan messages in the channel as responded
                 $fan_messages = Message::where('channel_id', $id)
@@ -189,7 +216,7 @@ class HomeController extends Controller
             $message->text = $message->message;
             $message->my_id = $mi;
 
-            Pusher::trigger('chat'.$id,
+            Pusher::trigger('chat' . $id,
                 'new-message', $message);
 
         } else {
@@ -205,7 +232,7 @@ class HomeController extends Controller
 
             $transaction = PayPal::Transaction();
             $transaction->setAmount($amount);
-            $transaction->setDescription('Message to '.$creator->name);
+            $transaction->setDescription('Message to ' . $creator->name);
 
             $redirectUrls = PayPal:: RedirectUrls();
             $redirectUrls->setReturnUrl(action('HomeController@paymentConfirm'));
@@ -226,19 +253,23 @@ class HomeController extends Controller
             $message->payment_id = $paymentID;
             $message->save();
 
-            return Redirect::to( $redirectUrl );
+            return Redirect::to($redirectUrl);
         }
     }
 
-    public function profile(Request $request, $slug = null) {
+    public function profile(Request $request, $slug = null)
+    {
         $user = null;
 
-        if($slug != null) {
+        if ($slug != null) {
             $user = User::where('slug_name', $slug)->get()->first();
-        } else if($request->has('user')) {
-            $user_id = $request->input('user');
+        } else if ($request->has('user')) {
+
+            $e_user_id = $request->input('user');
+            $user_id = base64_decode($e_user_id);
+
             $user = User::find($user_id);
-        } else if(Auth::check()) {
+        } else if (Auth::check()) {
             $user = Auth::user();
         } else {
             return redirect()->back();
@@ -249,16 +280,17 @@ class HomeController extends Controller
         ]);
     }
 
-    public function updateProfile(Request $request) {
+    public function updateProfile(Request $request)
+    {
         $me = Auth::user();
-        if($request->has('name')) {
+        if ($request->has('name')) {
             $me->name = $request->input('name');
         }
 
-        if($request->has('password') && $request->input('password') != "") {
+        if ($request->has('password') && $request->input('password') != "") {
             $password = $request->input('password');
             $confirm = $request->input('password_confirmation');
-            if($password == $confirm) {
+            if ($password == $confirm) {
                 $me->password = Hash::make($request->input('password'));
             } else {
                 return response()->json([
@@ -267,36 +299,36 @@ class HomeController extends Controller
             }
         }
 
-        if($request->has('birthday')) {
+        if ($request->has('birthday')) {
             $me->birthday = $request->input('birthday');
         }
 
-        if($request->has('gender')) {
+        if ($request->has('gender')) {
             $me->gender = $request->input('gender');
         }
 
-        if($request->has('education')) {
+        if ($request->has('education')) {
             $me->education = $request->input('education');
         }
 
-        if($request->has('profession')) {
+        if ($request->has('profession')) {
             $me->profession = $request->input('profession');
         }
 
-        if($request->has('description')) {
+        if ($request->has('description')) {
             $me->description = $request->input('description');
         }
 
-        if($request->has('rate')) {
+        if ($request->has('rate')) {
             $me->rate = $request->input('rate');
         }
 
-        if($request->has('do_not_send')) {
+        if ($request->has('do_not_send')) {
             $me->do_not_send = $request->input('do_not_send');
         }
 
-        if($request->hasFile('photo')) {
-            $file_name = 'photo_'.$me->id.'_'.str_random(8).'.'.
+        if ($request->hasFile('photo')) {
+            $file_name = 'photo_' . $me->id . '_' . str_random(8) . '.' .
                 $request->file('photo')->getClientOriginalExtension();
 
             $request->file('photo')->move(
@@ -308,8 +340,8 @@ class HomeController extends Controller
             $me->photo = $url;
         }
 
-        if($request->hasFile('background')) {
-            $file_name = 'background_'.$me->id.'_'.str_random(8).'.'.
+        if ($request->hasFile('background')) {
+            $file_name = 'background_' . $me->id . '_' . str_random(8) . '.' .
                 $request->file('background')->getClientOriginalExtension();
 
             $request->file('background')->move(
@@ -328,7 +360,8 @@ class HomeController extends Controller
         ]);
     }
 
-    public function settings(Request $request) {
+    public function settings(Request $request)
+    {
         $user = Auth::user();
 
         return view('pages.setting', [
@@ -336,7 +369,8 @@ class HomeController extends Controller
         ]);
     }
 
-    public function paymentConfirm(Request $request) {
+    public function paymentConfirm(Request $request)
+    {
         $mi = Auth::user()->id;
 
         $id = $request->get('paymentId');
@@ -351,13 +385,13 @@ class HomeController extends Controller
 
         $paymentExecution->setPayerId($payer_id);
 
-            $executePayment = $payment->execute($paymentExecution, $this->_apiContext);
+        $executePayment = $payment->execute($paymentExecution, $this->_apiContext);
 
 
         // Clear the shopping cart, write to database, send notifications, etc.
 
         $message = Message::where('payment_id', $id)->get()->first();
-        if($message == null) {
+        if ($message == null) {
             echo "Error occurred while sending message. Please contact customer support.";
         } else {
             $message->status = Message::MESSAGE_STATUS_APPROVED;
@@ -373,7 +407,7 @@ class HomeController extends Controller
             $message->text = $message->message;
             $message->my_id = $mi;
 
-            Pusher::trigger('chat'.$message->channel_id,
+            Pusher::trigger('chat' . $message->channel_id,
                 'new-message', $message);
 
             return redirect()->action(
@@ -384,11 +418,12 @@ class HomeController extends Controller
 
     }
 
-    public function paymentCancel(Request $request) {
+    public function paymentCancel(Request $request)
+    {
         $paymentId = $request->get('paymentId');
         $message = Message::where('payment_id', $paymentId)->get()->first();
 
-        if($message != null) {
+        if ($message != null) {
             $message->status = Message::MESSAGE_STATUS_CANCELED;
             $message->save();
 
@@ -398,7 +433,8 @@ class HomeController extends Controller
         }
     }
 
-    public function testPayment(Request $request) {
+    public function testPayment(Request $request)
+    {
         $payer = PayPal::Payer();
         $payer->setPaymentMethod('paypal');
 
@@ -473,10 +509,11 @@ class HomeController extends Controller
 }
          */
 
-        return Redirect::to( $redirectUrl );
+        return Redirect::to($redirectUrl);
     }
 
-    public function confirmSubscription() {
+    public function confirmSubscription()
+    {
         $me = Auth::user();
 
         $me->subscription_end_at = Carbon::now()->addMonth(1);
@@ -485,22 +522,24 @@ class HomeController extends Controller
         return redirect()->action('HomeController@settings');
     }
 
-    public function cancelSubscription() {
+    public function cancelSubscription()
+    {
         return redirect()->action('HomeController@settings');
     }
 
-    public function googleSign(Request $request) {
+    public function googleSign(Request $request)
+    {
         $email = $request->input('email');
         $name = $request->input('name');
 
         $user = User::where('email', $email)->get()->first();
 
-        if($user == null) {
+        if ($user == null) {
             //if not exist
             return view('auth.register', [
-                'email'=>$email,
-                'name'=>$name,
-                'social'=>true,
+                'email' => $email,
+                'name' => $name,
+                'social' => true,
             ]);
         } else {
             Auth::login($user);

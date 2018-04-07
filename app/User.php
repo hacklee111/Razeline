@@ -33,7 +33,8 @@ class User extends Authenticatable
 
     protected $appends = [
         'unread_messages', 'subscription_available', 'me',
-        'received_amount', 'sent_amount', 'responded_amount'
+        'received_amount', 'sent_amount', 'responded_amount',
+        'balance_amount'
     ];
 
     const USER_TYPE_CREATOR = 'creator';
@@ -155,6 +156,18 @@ class User extends Authenticatable
 
         return 0;
     }
+
+    public function getBalanceAmountAttribute() {
+        if(Auth::user()){
+            $user = Auth::user();
+            $mi = $user->id;
+
+            $amount  = $this->responded_amount-$this->sent_amount;
+            return $amount;
+        }
+        return 0;
+    }
+
 
     static public function getSlugName($fullname) {
         $slug = str_slug($fullname, '-');

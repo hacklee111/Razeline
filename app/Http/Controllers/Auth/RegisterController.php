@@ -43,15 +43,14 @@ class RegisterController extends Controller
     /**
      * Get a validator for an incoming registration request.
      *
-     * @param  array  $data
+     * @param  array $data
      * @return \Illuminate\Contracts\Validation\Validator
      */
     protected function validator(array $data)
     {
-        Validator::extend('gmail', function($attribute, $value, $parameters)
-        {
+        Validator::extend('gmail', function ($attribute, $value, $parameters) {
             // Banned words
-            if(ends_with($value, '@gmail.com')) {
+            if (ends_with($value, '@gmail.com')) {
                 return true;
             } else {
                 return false;
@@ -68,7 +67,7 @@ class RegisterController extends Controller
     /**
      * Create a new user instance after a valid registration.
      *
-     * @param  array  $data
+     * @param  array $data
      * @return \App\User
      */
     protected function create(array $data)
@@ -83,7 +82,6 @@ class RegisterController extends Controller
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => $password,
-
             'type' => $data['type'],
         ];
 
@@ -93,9 +91,6 @@ class RegisterController extends Controller
 
         if (array_key_exists('gender', $data))
             $create_data['gender'] = $data['gender'];
-
-        if (array_key_exists('education', $data))
-            $create_data['education'] = $data['education'];
 
         if (array_key_exists('profession', $data))
             $create_data['profession'] = $data['profession'];
@@ -113,8 +108,8 @@ class RegisterController extends Controller
 
         $user = User::create($create_data);
 
-        if(Input::file('photo') && Input::file('photo')->isValid()) {
-            $file_name = 'photo_'.$user->id.'_'.str_random(8).'.'.
+        if (Input::file('photo') && Input::file('photo')->isValid()) {
+            $file_name = 'photo_' . $user->id . '_' . str_random(8) . '.' .
                 Input::file('photo')->getClientOriginalExtension();
 
             Input::file('photo')->move(
@@ -124,6 +119,19 @@ class RegisterController extends Controller
             $url = './attachments/' . $file_name;
 
             $user->photo = $url;
+        }
+
+        if (Input::file('background')) {
+            $bg_file_name = 'background_' . $user->id . '_' . str_random(8) . '.' .
+                Input::file('background')->getClientOriginalExtension();
+
+            Input::file('background')->move(
+                base_path() . '/public/attachments/', $bg_file_name
+            );
+
+            $url = './attachments/' . $bg_file_name;
+
+            $user->background = $url;
         }
 
         $user->save();
