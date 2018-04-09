@@ -10,7 +10,7 @@
 
                         <div class="p-2 px-3 text-muted text-sm">Messages</div>
 
-                        @foreach($channels as $c)
+                        @forelse($channels as $c)
                             <div class="list-item @if($c->id == $active_channel->id) active @endif" data-id="item-14">
 	      			            <span class="w-56 avatar circle brown">
                                     <a href="{{url('/profile').'?user='.base64_encode($c->fan_id)}}">
@@ -31,7 +31,11 @@
                                 <div>
                                 </div>
                             </div>
-                        @endforeach
+                        @empty
+                            <div class="list-item">
+                                <p class="text-center">No Messsages. <br> Please find a creator and chat here.</p>
+                            </div>
+                        @endforelse
 
                     </div>
                     <div class="no-result hide">

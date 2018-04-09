@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Mail\MessageSignup;
 use App\User;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Input;
@@ -134,7 +135,15 @@ class RegisterController extends Controller
             $user->background = $url;
         }
 
+        //pending status
+        $user->status = User::USER_STATUS_PENDING;
+
         $user->save();
+
+        $act_link=url('/actvate_user?userid='.base64_encode($user->id));
+
+        //send signup email
+        Mail::to($user)->queue(new MessageSignup($data['name'], $data['email'], $act_link));
 
         return $user;
     }

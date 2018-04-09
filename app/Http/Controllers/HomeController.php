@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\MessageSignup;
 use App\Mail\MessageReceived;
+use App\Mail\MessageResponse;
+
 use App\Message;
 use App\MessageChannel;
 use App\User;
@@ -401,7 +404,7 @@ class HomeController extends Controller
             $creator = User::find($channel->creator_id);
 
             //send email notification here
-            Mail::to($creator)->queue(new MessageReceived($message));
+            Mail::to($creator)->queue(new MessageResponse($message));
 
 
             $message->text = $message->message;
@@ -546,5 +549,18 @@ class HomeController extends Controller
 
             return redirect()->action('HomeController@index');
         }
+    }
+
+    //actiavte user
+    public function activateUser(Request $reqeust){
+        $en_user_id = $reqeust->get('user_id');
+        $de_user_id = base64_decode($en_user_id);
+        $user = User::find($de_user_id);
+        if($user){
+            $user->status = User::USER_STATUS_ACTIVATED;
+            $user->save();
+        }
+
+        return redirect()->route('home');
     }
 }

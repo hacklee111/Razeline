@@ -14,10 +14,12 @@
 use Illuminate\Support\Facades\Mail;
 
 Route::get('/', 'HomeController@index');
-Route::get('/home', 'HomeController@index');
+Route::get('/home', 'HomeController@index')->route('home');
 Route::get('/find', 'HomeController@findCreators');
 
 Route::post('/google-sign', 'HomeController@googleSign');
+
+Route::get('/actvate_user', 'HomeController@activateUser');
 
 Route::get('/test', function() {
     $user = Auth::user();

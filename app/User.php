@@ -40,6 +40,10 @@ class User extends Authenticatable
     const USER_TYPE_CREATOR = 'creator';
     const USER_TYPE_FAN = 'fan';
 
+    const USER_STATUS_PENDING = 0; //default
+    const USER_STATUS_ACTIVATED = 1;
+    const USER_STATUS_BLOCKED = 2;
+
     public function getPhotoAttribute($value) {
         if($value == null) {
             return asset('image/avatar_placeholder.jpg');
@@ -75,7 +79,8 @@ class User extends Authenticatable
     }
 
     public function getSubscriptionAvailableAttribute() {
-        return $this->subscription_end_at && Carbon::now()->lt(Carbon::parse($this->subscription_end_at));
+        return true;
+        //return $this->subscription_end_at && Carbon::now()->lt(Carbon::parse($this->subscription_end_at));
     }
 
     public function getMeAttribute() {

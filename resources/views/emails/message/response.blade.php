@@ -2,15 +2,13 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <meta name="viewport"
-          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>New Message</title>
-
+    <title>RazelinePage1</title>
     <style>
         /* CSS Document */
+
         img {
             width: 25%;
+
         }
 
         .containerStyling {
@@ -38,7 +36,6 @@
         .margin3 {
             margin: 3%;
         }
-
     </style>
 
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
@@ -52,10 +49,10 @@
 
     <img class="margin3" src="{{asset('/public/image/email_logo.png')}}" alt="logo">
 
-    <h5 class="margin3">You have received a new private message from <strong>{{$msg->sender_name}}</strong> on RazeLine
-    </h5>
+    <h5 class="margin3">You have received a response from <strong>{{$msg->sender_name}}</strong> on RazeLine, please
+        click below to view</h5>
 
-    <a class="button1" href="{{url('/messages?channel='.$msg->channel_id)}}"><strong>View Message</strong></a>
+    <a class="button1" href="{{url('/messages?channel='.$msg->channel_id)}}"><strong>View Response</strong></a>
 
     <h5 class="margin3">Thank you from the RAZELINE team!</h5>
 
