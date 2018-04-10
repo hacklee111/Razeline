@@ -5,7 +5,7 @@
     <meta name="google-signin-client_id"
           content="4889135096-s54r15vij6n1nnftr2lmgkbr7ckr6cpa.apps.googleusercontent.com">
 
-    <link rel="stylesheet" href="<?=asset('css/plugins/floatlabel/floatlabel.css')?>" type="text/css"/>
+    <link rel="stylesheet" href="<?=asset('assets/css/floatlabel.css')?>" type="text/css"/>
 @endsection
 
 
@@ -103,9 +103,12 @@
                             </script>
 
                             <div id="fb-root"></div>
-                            <div class="fb-login-button" data-width="430px" data-max-rows="1" data-size="large"
+                            <div class="fb-login-button hide" data-width="400px" data-max-rows="1" data-size="large"
+                                 data-height="50px"
                                  data-button-type="continue_with" data-show-faces="false" data-auto-logout-link="false"
                                  data-use-continue-as="false"></div>
+
+                            <button class="fb-login-button2" type="submit" onclick="FB.login()"><i class="fa fa-facebook-f"></i>Continue With Facebok</button>
 
                         </div>
 
@@ -202,9 +205,9 @@
 
                             </div>
 
-                            <div class="form-label-group{{ $errors->has('profession') ? ' has-error' : '' }}">
+                            <div class="form-label-group{{ $errors->has('profession') ? ' has-error' : '' }}" id="group_profession">
 
-                                <input id="profession" type="text" class="form-control" name="profession"
+                                <input id="profession" type="text" class="form-control hide_require" name="profession"
                                        placeholder="Heading"
                                        value="{{ old('profession', isset($heading) ? $heading : "") }}" required>
 
@@ -221,7 +224,7 @@
                             <div class="form-group row no-gutters" id="group_description">
                                 <label for="description" class="control-label col-4">Description<span
                                             class="asterisk">*</span></label>
-                                <textarea id="description" name="description" class="form-control col-8"></textarea>
+                                <textarea id="description" name="description" class="form-control col-8" required></textarea>
                             </div>
 
                             <div class="form-group row no-gutters" id="group_rate">
@@ -278,8 +281,47 @@
 
 
 @section('script')
-    <script src="https://apis.google.com/js/platform.js"></script>
     <script>
+        $(document).ready(function () {
+            function onChangeUserType() {
+                var value = document.getElementById('type').value;
+
+                if (value === 'creator') {
+                    document.getElementById('group_profession').style.display = 'block';
+                    document.getElementById('group_description').style.display = 'block';
+                    document.getElementById('group_rate').style.display = 'block';
+                    document.getElementById('group_do_not_send').style.display = 'block';
+
+                    document.getElementById('profession').setAttribute('required', 'required');
+                    document.getElementById('description').setAttribute('required', 'required');
+                    document.getElementById('rate').setAttribute('required', 'required');
+                    document.getElementById('do_not_send').setAttribute('required', 'required');
+
+                } else {
+                    document.getElementById('group_profession').style.display = 'none';
+                    document.getElementById('group_description').style.display = 'none';
+                    document.getElementById('group_rate').style.display = 'none';
+                    document.getElementById('group_do_not_send').style.display = 'none';
+
+                    //remove require
+                    document.getElementById('profession').removeAttribute('required');
+                    document.getElementById('description').removeAttribute('required');
+                    document.getElementById('rate').removeAttribute('required');
+                    document.getElementById('do_not_send').removeAttribute('required');
+
+                }
+            }
+
+            $('#type').on("change", onChangeUserType);
+
+        });
+
+        //        var init = function() {
+        //            $('#birthday').datetimepicker({ locale: 'en-ca' });
+        //        };
+        //        $.fn.datetimepicker.init = init;
+
+
         $("[type=file]").on("change", function () {
             // Name of file and placeholder
             var file = this.files[0].name;
@@ -290,8 +332,9 @@
                 $(this).next().text(dflt);
             }
         });
-    </script>
 
+    </script>
+    <script src="https://apis.google.com/js/platform.js"></script>
     <script>
         function onSignIn(googleUser) {
             // Useful data for your client-side scripts:
@@ -314,36 +357,5 @@
 
             form.submit();
         };
-    </script>
-
-
-    <script>
-        $(document).ready(function () {
-            function onChangeUserType() {
-                var value = document.getElementById('type').value;
-
-                if (value === 'creator') {
-                    document.getElementById('group_profession').style.display = 'block';
-                    document.getElementById('group_description').style.display = 'block';
-                    document.getElementById('group_rate').style.display = 'block';
-                    document.getElementById('group_do_not_send').style.display = 'block';
-                } else {
-                    document.getElementById('group_profession').style.display = 'none';
-                    document.getElementById('group_description').style.display = 'none';
-                    document.getElementById('group_rate').style.display = 'none';
-                    document.getElementById('group_do_not_send').style.display = 'none';
-                }
-            }
-
-            $('#type').on("change", onChangeUserType);
-
-        });
-
-        //        var init = function() {
-        //            $('#birthday').datetimepicker({ locale: 'en-ca' });
-        //        };
-        //        $.fn.datetimepicker.init = init;
-
-
     </script>
 @endsection

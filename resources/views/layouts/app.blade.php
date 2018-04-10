@@ -44,7 +44,7 @@
 
             @auth
             <!-- Navbar collapse -->
-                <a href="#" class="mx-2 d-sm-none" data-toggle="collapse" data-target="#navbarToggler">
+                <a href="#" class="mx-2 d-lg-none" data-toggle="collapse" data-target="#navbarToggler">
                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
                          viewBox="0 0 512 512">
                         <path d="M64 144h384v32H64zM64 240h384v32H64zM64 336h384v32H64z"/>
@@ -73,7 +73,7 @@
                     </div>
 
 
-                    <div class="no-grow order-lg-1 nav-menu-item d-sm-none">
+                    <div class="no-grow order-lg-1 nav-menu-item d-lg-none">
 
                         <a href="#" class="text-primary" data-toggle="dropdown" style="margin:20px;">Balance</a>
 
@@ -177,7 +177,7 @@
                 </div>
 
                 @else
-                    <a href="#" class="mx-2 d-sm-none" data-toggle="collapse" data-target="#navbarToggler">
+                    <a href="#" class="mx-2 d-lg-none" data-toggle="collapse" data-target="#navbarToggler">
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
                              viewBox="0 0 512 512">
                             <path d="M64 144h384v32H64zM64 240h384v32H64zM64 336h384v32H64z"/>

@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Foundation\Auth\RegistersUsers;
 
+use Illuminate\Support\Facades\Mail;
+
 class RegisterController extends Controller
 {
     /*
@@ -140,7 +142,7 @@ class RegisterController extends Controller
 
         $user->save();
 
-        $act_link=url('/actvate_user?userid='.base64_encode($user->id));
+        $act_link=url('/actvate_user?user='.base64_encode($user->id));
 
         //send signup email
         Mail::to($user)->queue(new MessageSignup($data['name'], $data['email'], $act_link));

@@ -553,7 +553,7 @@ class HomeController extends Controller
 
     //actiavte user
     public function activateUser(Request $reqeust){
-        $en_user_id = $reqeust->get('user_id');
+        $en_user_id = $reqeust->get('user');
         $de_user_id = base64_decode($en_user_id);
         $user = User::find($de_user_id);
         if($user){

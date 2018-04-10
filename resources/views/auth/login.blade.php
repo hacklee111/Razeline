@@ -4,7 +4,7 @@
     <meta name="google-signin-client_id"
           content="4889135096-s54r15vij6n1nnftr2lmgkbr7ckr6cpa.apps.googleusercontent.com">
 
-    <link rel="stylesheet" href="<?=asset('css/plugins/floatlabel/floatlabel.css')?>" type="text/css"/>
+    <link rel="stylesheet" href="<?=asset('assets/css/floatlabel.css')?>" type="text/css"/>
 @endsection
 
 @section('content')
@@ -102,9 +102,11 @@
                             </script>
 
                             <div id="fb-root"></div>
-                            <div class="fb-login-button" data-width="430px" data-max-rows="1" data-size="large"
+                            <div class="fb-login-button hide" data-width="400" data-height="40" data-max-rows="1" data-size="large"
                                  data-button-type="continue_with" data-show-faces="false" data-auto-logout-link="false"
                                  data-use-continue-as="false"></div>
+
+                            <button class="fb-login-button2" type="submit" onclick="FB.login()"><i class="fa fa-facebook-f"></i>Continue With Facebok</button>
 
                         </div>
 

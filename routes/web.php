@@ -14,12 +14,12 @@
 use Illuminate\Support\Facades\Mail;
 
 Route::get('/', 'HomeController@index');
-Route::get('/home', 'HomeController@index')->route('home');
+Route::get('/home', 'HomeController@index')->name('home');
 Route::get('/find', 'HomeController@findCreators');
 
 Route::post('/google-sign', 'HomeController@googleSign');
 
-Route::get('/actvate_user', 'HomeController@activateUser');
+Route::get('/activate_user', 'HomeController@activateUser');
 
 Route::get('/test', function() {
     $user = Auth::user();
@@ -28,13 +28,16 @@ Route::get('/test', function() {
 });
 
 Route::get('/mail', function() {
-    $msg = \App\Message::all()->first();
-    $user = \App\User::all()->first();
+    $user = \App\User::find(11);
 
-    $mail = new \App\Mail\MessageReceived($msg);
+    $act_link=url('/activate_user?user='.base64_encode($user->id));
 
-    Mail::to($user)->send($mail);
-    return $mail;
+    $messagesignup = new \App\Mail\MessageSignup($user['name'], $user['email'], $act_link);
+
+    Mail::to($user)->queue($messagesignup);
+
+    //Mail::to($user)->send($mail);
+    return $messagesignup;
 });
 Auth::routes();
 Route::get('/messages', 'HomeController@showMessages');

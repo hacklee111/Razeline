@@ -23,7 +23,7 @@
 
 @section('content')
 
-    <div class="full-ob" style="background-image:url({{$user->background}});">
+    <div class="full-ob bg-cover" style="background-image:url({{$user->background}});">
 
         <div class="container section-profile full-ob">
             <div class="row pt-3 pb-5">
