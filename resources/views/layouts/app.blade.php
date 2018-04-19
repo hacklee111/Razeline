@@ -35,10 +35,10 @@
     <div id="content" class="app-content box-shadow-0" role="main">
         <!-- Header -->
         <div class="content-header white  box-shadow-0" id="content-header">
-            <div class="navbar navbar-expand-lg" style="display: flex; flex-wrap:wrap; justify-content: space-between;">
+            <div class="navbar navbar-expand-lg d-flex flex-wrap pb-sm-0" style="justify-content: space-between;">
 
                 <!-- Page title -->
-                <div class="navbar-text nav-title" id="pageTitle">
+                <div class="navbar-text nav-title mx-sm-240" id="pageTitle">
                     <a href="{{url('/')}}"><img src="<?=asset('image/logo.png')?>" id="nav-image"></a>
                 </div>
 
@@ -94,31 +94,34 @@
                         </ul>
                     </div>
 
-                    <div class="d-sm-none no-grow order-lg-1 nav-menu-item">
+                    <div class="d-lg-none no-grow order-lg-1 nav-menu-item">
                         <a href="{{url('/profile')}}" class="text-primary" style="margin:20px;">Profile
                         </a>
                     </div>
 
-                    <div class="d-sm-none no-grow order-lg-1 nav-menu-item">
+                    <div class="d-lg-none no-grow order-lg-1 nav-menu-item">
                         <a href="{{url('/settings')}}" class="text-primary" style="margin:20px;">Settings
                         </a>
                     </div>
 
-                    <div class="d-sm-none no-grow order-lg-1 nav-menu-item">
+                    <div class="d-lg-none no-grow order-lg-1 nav-menu-item">
                         <a href="{{url('/logout')}}" class="text-primary" style="margin:20px;">Log Out
                         </a>
                     </div>
 
 
-                    <div class="nav-lg-none no-grow order-lg-1" id="nav-item-avatar">
+                    <div class="nav-lg-block no-grow order-lg-1" id="nav-item-avatar">
                         <ul class="nav flex-row order-lg-2">
                             <li class="dropdown d-flex align-items-center">
                                 <a href="#" data-toggle="dropdown" class="d-flex align-items-center">
                                         <span class="avatar w-32">
                                           <img src="{{Auth::user()->photo}}">
-                                            <span
-                                                    class="badge badge-pill up danger">{{Auth::user()->unread_messages}}</span>
-                                        </span>
+                                            @if(Auth::user()->unread_messages == null)
+                                                <span class="badge badge-pill up info"></span>
+                                            @else
+                                                <span class="badge badge-pill up success">{{Auth::user()->unread_messages}}</span>
+                                            @endif
+                                      </span>
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-right w pt-0 mt-2 animate fadeIn">
                                     <li>
@@ -178,30 +181,46 @@
 
                 @else
                     <a href="#" class="mx-2 d-lg-none" data-toggle="collapse" data-target="#navbarToggler">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
-                             viewBox="0 0 512 512">
-                            <path d="M64 144h384v32H64zM64 240h384v32H64zM64 336h384v32H64z"/>
-                        </svg>
+                        <span class="fa fa-bars"></span>
                     </a>
 
                     <div class="collapse navbar-collapse no-grow order-lg-1" id="navbarToggler"
                          style="align-items: baseline;">
-                        <h5 style="margin:20px;" class="text-hover-primary"><a href="{{url('/')}}">Are you a
-                                creator?</a></h5>
 
-                        <h5><a href="{{url('/find')}}" class="text-primary" style="margin:20px;">Find&nbsp;a&nbsp;creator</a>
-                        </h5>
+                        <div class="nav-menu-item mobile-menu-item">
+                            <h5 style="margin:20px;" class="text-hover-primary"><a href="{{url('/')}}">Are you a
+                                    creator?</a></h5>
+                        </div>
 
-                        <a href="{{url('/register')}}" class="btn btn-rounded btn-sm primary btn-theme"
+                        <div class="nav-menu-item mobile-menu-item">
+                            <h5><a href="{{url('/find')}}" class="text-primary" style="margin:20px;">Find&nbsp;a&nbsp;creator</a>
+                            </h5>
+                        </div>
+
+                        <!--mobile menu-->
+                        <div class="d-lg-none no-grow order-lg-1 nav-menu-item mobile-menu-item">
+                            <a href="{{url('/register')}}" class="text-primary" style="margin:20px;">Sign Up</a>
+                        </div>
+
+                        <div class="d-lg-none no-grow order-lg-1 nav-menu-item mobile-menu-item">
+                            <a href="{{url('/login')}}" class="text-primary" style="margin:20px;">Login</a>
+                        </div>
+
+                        <a href="{{url('/register')}}" class="btn btn-rounded btn-sm primary btn-theme lg-hide"
                            style="margin:20px;">
                             Sign Up
                         </a>
 
-                        <a href="{{url('/login')}}" class="btn btn-outline btn-sm b-primary text-primary btn-theme"
+                        <a href="{{url('/login')}}"
+                           class="btn btn-outline btn-sm b-primary text-primary btn-theme lg-hide"
                            style="margin: 20px; padding-left:10px; padding-right:10px;">
                             Log In
                         </a>
+
+
                     </div>
+
+
                     @endauth
 
             </div>
@@ -228,11 +247,12 @@
 <footer class="footer">
     <div class="content-footer row">
         <div class="col-md-6 footer-social text-lg-left text-center">
-            <a href="#"><img src="<?=asset('image/social_facebook.png')?>"></a>
-            <a href="#"><img src="<?=asset('image/social_google.png')?>"></a>
-            <a href="#"><img src="<?=asset('image/social_twitter.png')?>"></a>
-            <a href="#"><img src="<?=asset('image/social_tumblr.png')?>"></a>
-            <a href="#"><img src="<?=asset('image/social_pinterest.png')?>"></a>
+            <a href="https://m.facebook.com/getrazeline/manager/?notif_t=page_user_activity&notif_id=1519111328661600&ref=m_notif"><span
+                        class="fa fa-facebook-square"></span></a>
+            <a href="https://www.linkedin.com/company/therapyline-inc"><span class="fa fa-linkedin-square"></span></a>
+            <a href="https://mobile.twitter.com/getrazeline?lang=en"><span class="fa fa-twitter-square"></span></a>
+            <a href="https://www.instagram.com/getrazeline/"><span class="fa fa-instagram"></span></a>
+            <a href="https://www.pinterest.com/razeline1013/"><span class="fa fa-pinterest"></span></a>
         </div>
 
         <div class="col-md-6 footer-legals text-lg-right text-center mt-4 mt-sm-0">

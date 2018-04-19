@@ -10,9 +10,9 @@
             <div class="row mt-12">
                 <div class="col-sm-12">
                     <div class="home-section-column">
-                        <h3 class="about" style=" text-align: center; color:#fff">The #1 place to connect with your
-                            favorite<br>creators directly and get VIP access.</h3>
-                        <div class="about">
+                        <h3 class="my-5" style=" text-align: center; color:#fff">CONNECT DIRECTLY WITH INFLUENCERS AND
+                            CREATORS</h3>
+                        <div class="my-3">
                             <form class="input-group m-2 my-lg-0" method="get" action="{{url('/find')}}">
                                 <input type="hidden" name="_token" value="{{ csrf_token() }}">
 
@@ -20,10 +20,9 @@
                                 <button class="submit" id="btn-search"><i class="fa fa-search"></i>&nbsp;Search</button>
                             </form>
                         </div>
-                        <h3 class="about" style=" text-align: center; color:#fff">All creators are verified to be
-                            themselves<br>
-                            and guarantee a response</h3>
-                        <div class="about">
+                        <h3 class="my-5" style=" text-align: center; color:#fff">All creators are verified to be
+                            themselves<br> and guarantee a response</h3>
+                        <div class="my-5">
                             <button class="btn btn-danger" onclick="goto_creator_tab()"
                                     style="position: relative; top:-30px; padding: 8px 40px;"><h5>Explore</h5></button>
                         </div>
@@ -38,14 +37,13 @@
             <div class="home-section-column">
                 <h2 class="pb-3">What is Razeline?</h2>
 
-                <p class="intro2">We at RazeLine have created a platform that allows fans to not only support their
-                    favorite creators but to directly interact with
-                    them <strong><font color="#2e3192">One on One</font></strong> while providing a safe method for
-                    creators to receive and respond to private messages and provide exclusive access.</p>
-                <p class="intro2">You can send and receive private messages directly from your favorite creators and can
-                    also sign up for monthly VIP access to receive exclusive content. </p>
-                <p class="intro2">All messages are personally responded to by the creator within 7 days or your money
-                    back and all exclusive content and access is guaranteed.</p>
+                <p class="intro2">We at RazeLine have created a platform that allows fans and anyone else to connect
+                    directly with creators and directly interact with them <strong><font color="#2e3192">One on
+                            One</font></strong> while providing a safe method for creators to receive and respond to
+                    private messages.</p>
+                <p class="intro2">All messages are personally responded to by the creator within 72 hours <br>or your
+                    money
+                    back.</p>
             </div>
         </div>
 
@@ -58,21 +56,20 @@
                     <div class="row">
                         <div class="col-md-4 text-center mb-3">
                             <img src="<?=asset('image/redirect.png')?>">
-                            <h4 class="how"><strong style="color:#2e3192">1.</strong> Please sign up using your
-                                <strong style="color:#d34836">Google</strong> account.</h4>
+                            <h4 class="how"><strong style="color:#2e3192">1.</strong> Sign Up</h4>
                         </div>
                         <div class="col-md-4 text-center mb-3">
                             <img src="<?=asset('image/group.png')?>">
-                            <h4 class="how"><strong style="color:#2e3192">2.</strong> Choose your creator</h4>
+                            <h4 class="how"><strong style="color:#2e3192">2.</strong> Choose a creator</h4>
                         </div>
                         <div class="col-md-4 text-center mb-3">
                             <img src="<?=asset('image/message.png')?>">
-                            <h4 class="how"><strong style="color:#2e3192">3.</strong> Start messaging and/or enrolling
-                                into monthly VIP plans offered by your creator to get exclusive content.</h4>
+                            <h4 class="how"><strong style="color:#2e3192">3.</strong> Type a message of up to 180
+                                characters, sign into Paypal then send your message.</h4>
                         </div>
-
                     </div>
                 </div>
+                <p class="my-5"><strong>You need a valid credit card attached to your PayPal account in order send a message.</strong></p>
             </div>
         </div>
 
@@ -84,7 +81,7 @@
                     @foreach($creators as $c)
                         <div class="section-creator my-5">
                             <div class="section-creator-header">
-                                <img src="{{$c->photo}}" class="circle w-80 save-aspect">
+                                <img src="{{$c->photo}}" class="circle w-80 md-w-240 save-aspect">
                                 <h5 class="creator_name">
                                     @if($c->slug_name)
                                         <a href="{{url('/profile')}}/{{$c->slug_name}}"
@@ -95,9 +92,10 @@
                                     @endif
                                 </h5>
                             </div>
-                            <div class="section-creator-body">
+                            <div class="section-creator-body text-center text-md-left">
+                                <p class="creator_description"><?php echo str_limit($c->profession, 60); ?></p>
                                 <p class="creator_rate"><span> Rate: ${{$c->rate}}</span></p>
-                                <p class="creator_description"><?php echo str_limit($c->description, 60); ?></p>
+
                             </div>
                             <a class="md-btn md-raised mb-2 w-xs message_btn"
                                href="{{url('/messages')}}?user={{$c->id}}"><i

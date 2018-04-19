@@ -52,7 +52,7 @@
                         @endif
                     </div>
                 </div>
-                <div class="col-md-7 col-sm-6">
+                <div class="col-md-7 col-sm-6 my-4 ">
 
                     <div class="d-flex flex-wrap" style="justify-content: space-between;">
 

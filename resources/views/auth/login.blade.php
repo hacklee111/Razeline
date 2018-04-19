@@ -2,8 +2,8 @@
 @section('header')
     <meta name="google-signin-scope" content="profile email">
     <meta name="google-signin-client_id"
-          content="4889135096-s54r15vij6n1nnftr2lmgkbr7ckr6cpa.apps.googleusercontent.com">
-
+          content="4889135096-ifh2tjtpe0rm728jh6urvk2si9v1l1nt.apps.googleusercontent.com">
+    <script src="https://apis.google.com/js/platform.js" async defer></script>
     <link rel="stylesheet" href="<?=asset('assets/css/floatlabel.css')?>" type="text/css"/>
 @endsection
 
@@ -24,90 +24,9 @@
                                  data-width="430" data-height="50"
                                  data-onsuccess="onSignIn" data-theme="dark"></div>
 
-                            <script>
-                                // This is called with the results from from FB.getLoginStatus().
-                                function statusChangeCallback(response) {
-                                    console.log('statusChangeCallback');
-                                    console.log(response);
-                                    // The response object is returned with a status field that lets the
-                                    // app know the current login status of the person.
-                                    // Full docs on the response object can be found in the documentation
-                                    // for FB.getLoginStatus().
-                                    if (response.status === 'connected') {
-                                        // Logged into your app and Facebook.
-                                        testAPI();
-                                    } else {
-                                        // The person is not logged into your app or we are unable to tell.
-                                        document.getElementById('status').innerHTML = 'Please log ' +
-                                            'into this app.';
-                                    }
-                                }
-
-                                // This function is called when someone finishes with the Login
-                                // Button.  See the onlogin handler attached to it in the sample
-                                // code below.
-                                function checkLoginState() {
-                                    FB.getLoginStatus(function (response) {
-                                        statusChangeCallback(response);
-                                    });
-                                }
-
-                                window.fbAsyncInit = function () {
-                                    FB.init({
-                                        appId: '130127590512253',
-                                        cookie: true,  // enable cookies to allow the server to access
-                                                       // the session
-                                        xfbml: true,  // parse social plugins on this page
-                                        version: 'v2.8' // use graph api version 2.8
-                                    });
-
-                                    // Now that we've initialized the JavaScript SDK, we call
-                                    // FB.getLoginStatus().  This function gets the state of the
-                                    // person visiting this page and can return one of three states to
-                                    // the callback you provide.  They can be:
-                                    //
-                                    // 1. Logged into your app ('connected')
-                                    // 2. Logged into Facebook, but not your app ('not_authorized')
-                                    // 3. Not logged into Facebook and can't tell if they are logged into
-                                    //    your app or not.
-                                    //
-                                    // These three cases are handled in the callback function.
-
-                                    FB.getLoginStatus(function (response) {
-                                        statusChangeCallback(response);
-                                    });
-
-                                };
-
-                                // Load the SDK asynchronously
-                                (function (d, s, id) {
-                                    var js, fjs = d.getElementsByTagName(s)[0];
-                                    if (d.getElementById(id)) return;
-                                    js = d.createElement(s);
-                                    js.id = id;
-                                    js.src = "https://connect.facebook.net/en_US/sdk.js";
-                                    fjs.parentNode.insertBefore(js, fjs);
-                                }(document, 'script', 'facebook-jssdk'));
-
-                                // Here we run a very simple test of the Graph API after login is
-                                // successful.  See statusChangeCallback() for when this call is made.
-                                function testAPI() {
-                                    console.log('Welcome!  Fetching your information.... ');
-                                    FB.api('/me', function (response) {
-                                        console.log('Successful login for: ' + response.name);
-                                        document.getElementById('status').innerHTML =
-                                            'Thanks for logging in, ' + response.name + '!';
-                                    });
-                                }
-                            </script>
-
-                            <div id="fb-root"></div>
-                            <div class="fb-login-button hide" data-width="400" data-height="40" data-max-rows="1" data-size="large"
-                                 data-button-type="continue_with" data-show-faces="false" data-auto-logout-link="false"
-                                 data-use-continue-as="false"></div>
-
-                            <button class="fb-login-button2" type="submit" onclick="FB.login()"><i class="fa fa-facebook-f"></i>Continue With Facebok</button>
-
+                            <button class="fb-login-button2" type="button" onclick="facebook_login()"><i
+                                        class="fa fa-facebook-f"></i>Continue With Facebook
+                            </button>
                         </div>
 
                         <div class="form-label-group text-center mt-4 mb-4">
@@ -135,6 +54,7 @@
 
                             <div class="form-label-group {{ $errors->has('password') ? 'has-error' : '' }}">
                                 <input id="password" type="password" class="form-control" name="password" required
+                                       autocomplete
                                        placeholder="Password">
                                 <label for="password" class="control-label">Password</label>
 
@@ -168,15 +88,23 @@
                                 LOGIN
                             </button>
 
-                            <h6 class="text-center mt-3"> New to Razeline? <a class="btn-link" href="{{url('/register')}}">Sign Up</a></h6>
+                            <h6 class="text-center mt-3"> New to Razeline? <a class="btn-link"
+                                                                              href="{{url('/register')}}">Sign Up</a>
+                            </h6>
 
                         </form>
 
-                        <form id="form-google-sign" method="post" action="{{url('/google-sign')}}">
+                        <form id="form-google-sign" class="hidden" method="post" action="{{url('/google-sign')}}">
                             {{ csrf_field() }}
                             <input type="hidden" id="form_name" name="name" value="">
                             <input type="hidden" id="form_photo_url" name="photo_url">
                             <input type="hidden" id="form_email" name="email">
+                        </form>
+
+                        <form id="form-facebook-sign" class="hidden" method="post" action="{{url('/facebook-sign')}}">
+                            {{ csrf_field() }}
+                            <input type="hidden" id="fb_form_name" name="name">
+                            <input type="hidden" id="fb_form_email" name="email">
                         </form>
 
                     </div>
@@ -188,7 +116,7 @@
 @endsection
 
 @section('script')
-    <script src="https://apis.google.com/js/platform.js"></script>
+
     <script>
         function onSignIn(googleUser) {
             // Useful data for your client-side scripts:
@@ -211,5 +139,77 @@
 
             form.submit();
         };
+
+    </script>
+
+    <script>
+
+        window.fbAsyncInit = function () {
+            FB.init({
+                appId: '2212176545720097',
+                status: false,
+                cookie: true,  // enable cookies to allow the server to access
+                               // the session
+                xfbml: true,  // parse social plugins on this page
+                version: 'v2.8' // use graph api version 2.8
+            });
+        };
+
+        // Load the SDK asynchronously
+        (function (d, s, id) {
+            var js, fjs = d.getElementsByTagName(s)[0];
+            if (d.getElementById(id)) return;
+            js = d.createElement(s);
+            js.id = id;
+            js.src = "https://connect.facebook.net/en_US/sdk.js";
+            fjs.parentNode.insertBefore(js, fjs);
+        }(document, 'script', 'facebook-jssdk'));
+
+        function facebook_login() {
+            FB.login(function (response) {
+                statusChangeCallback(response);
+            });
+        };
+
+        function facebook_form_signin(response) {
+            var form1 = $('#form-facebook-sign');
+            document.getElementById("fb_form_name").value = response.name;
+            document.getElementById("fb_form_email").value = response.email;
+            console.log(response.name);
+            console.log(response.email);
+            form1.submit();
+        }
+
+        // This is called with the results from from FB.getLoginStatus().
+        function statusChangeCallback(response) {
+            // The response object is returned with a status field that lets the
+            // app know the current login status of the person.
+            // Full docs on the response object can be found in the documentation
+            // for FB.getLoginStatus().
+            if (response.status === 'connected') {
+                // Logged into your app and Facebook.
+                FB.api('/me', {fields: 'name, email'}, function (response) {
+                    console.log(JSON.stringify(response));
+                    console.log('Successful login for: ' + response.name);
+                    if (response.name && response.email) {
+                        facebook_form_signin(response);
+                    }
+                });
+            } else {
+                // The person is not logged into your app or we are unable to tell.
+                console.log('Please log into this app.');
+            }
+        }
+
+        // This function is called when someone finishes with the Login
+        // Button.  See the onlogin handler attached to it in the sample
+        // code below.
+        function checkLoginState() {
+            console.log('checkLoginState');
+            FB.getLoginStatus(function (response) {
+                statusChangeCallback(response);
+            });
+        }
+
     </script>
 @endsection

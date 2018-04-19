@@ -124,19 +124,6 @@ class RegisterController extends Controller
             $user->photo = $url;
         }
 
-        if (Input::file('background')) {
-            $bg_file_name = 'background_' . $user->id . '_' . str_random(8) . '.' .
-                Input::file('background')->getClientOriginalExtension();
-
-            Input::file('background')->move(
-                base_path() . '/public/attachments/', $bg_file_name
-            );
-
-            $url = './attachments/' . $bg_file_name;
-
-            $user->background = $url;
-        }
-
         //pending status
         $user->status = User::USER_STATUS_PENDING;
 

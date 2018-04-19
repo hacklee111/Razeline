@@ -18,6 +18,7 @@ Route::get('/home', 'HomeController@index')->name('home');
 Route::get('/find', 'HomeController@findCreators');
 
 Route::post('/google-sign', 'HomeController@googleSign');
+Route::post('/facebook-sign', 'HomeController@facebookSign');
 
 Route::get('/activate_user', 'HomeController@activateUser');
 

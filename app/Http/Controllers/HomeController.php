@@ -30,7 +30,7 @@ class HomeController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('auth')->except(['findCreators', 'index', 'profile', 'googleSign']);
+        $this->middleware('auth')->except(['findCreators', 'index', 'profile', 'googleSign', 'facebookSign']);
 
         $this->_apiContext = PayPal::ApiContext(
             config('services.paypal.client_id'),
@@ -539,11 +539,14 @@ class HomeController extends Controller
 
         if ($user == null) {
             //if not exist
-            return view('auth.register', [
-                'email' => $email,
-                'name' => $name,
-                'social' => true,
-            ]);
+//            return view('auth.register', [
+//                'email' => $email,
+//                'name' => $name,
+//                'google_signedin' => true,
+//            ]);
+
+            return redirect()->route('register')->with('email', $email)->with('name', $name)->with('google_signedin', true);
+
         } else {
             Auth::login($user);
 
@@ -551,12 +554,39 @@ class HomeController extends Controller
         }
     }
 
+
+
+    public function facebookSign(Request $request)
+    {
+        $email = $request->input('email');
+        $name = $request->input('name');
+
+        $user = User::where('email', $email)->get()->first();
+
+        if ($user == null) {
+            //if not exist
+//            return view('auth.register', [
+//                'email' => $email,
+//                'name' => $name,
+//                'facebook_signedin' => true,
+//            ]);
+
+            return redirect()->route('register')->with('email', $email)->with('name', $name)->with('facebook_signedin', true);
+
+        } else {
+            Auth::login($user);
+            return redirect()->action('HomeController@index');
+        }
+    }
+
+
     //actiavte user
-    public function activateUser(Request $reqeust){
+    public function activateUser(Request $reqeust)
+    {
         $en_user_id = $reqeust->get('user');
         $de_user_id = base64_decode($en_user_id);
         $user = User::find($de_user_id);
-        if($user){
+        if ($user) {
             $user->status = User::USER_STATUS_ACTIVATED;
             $user->save();
         }

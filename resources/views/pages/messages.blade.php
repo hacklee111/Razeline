@@ -13,7 +13,7 @@
                         @forelse($channels as $c)
                             <div class="list-item @if($c->id == $active_channel->id) active @endif" data-id="item-14">
 	      			            <span class="w-56 avatar circle brown">
-                                    <a href="{{url('/profile').'?user='.base64_encode($c->fan_id)}}">
+                                    <a href="{{url('/profile').'?user='.base64_encode($c->opponent_id)}}">
 	      			                    <img src="{{url($c->opponent_photo)}}" class="img-cover w-56 circle" alt=".">
                                     </a>
 	      			            </span>
@@ -58,7 +58,8 @@
 
                     <span class="text-md text-ellipsis flex">
 		        	    @if($active_channel)
-                            {{$active_channel->fan_name}}
+                            <img src="{{url($active_channel->opponent_photo)}}" class="img-cover w-32 d-sm-none circle" alt=".">
+                            {{$active_channel->opponent_name}}
                         @endif
 		            </span>
                 </div>
@@ -124,7 +125,7 @@
                                 {{--</button>--}}
                                 {{--</span>--}}
                                 <input type="text" class="form-control" placeholder="Message" id="newField"
-                                       name="message" maxlength="140">
+                                       name="message" maxlength="180">
                                 <span class="input-group-btn">
                                     <button class="btn white b-a no-shadow" type="button" id="newBtn">
                                         <i class="fa fa-send text-success"></i>
@@ -133,7 +134,7 @@
                             </div>
                             <span id="max_warn"
                                   class="small text-info"
-                                  style="display: none;">*MESSAGES CAN ONLY BE 140 CHARACTERS.</span>
+                                  style="display: none;">*MESSAGES CAN ONLY BE 180 CHARACTERS.</span>
                         </form>
                     @endif
                 </div>
@@ -180,7 +181,7 @@
 
             //check character length
             $("#newField").on('input', function () {
-                if ($(this).val().length >= 140) {
+                if ($(this).val().length >= 180) {
                     $('#max_warn').fadeIn('slow');
                 } else {
                     $('#max_warn').fadeOut('slow');
