@@ -68,7 +68,13 @@
 
                     <div class="no-grow order-lg-1 nav-menu-item">
 
-                        <a href="{{url('/messages')}}" class="text-primary" style="margin:20px;">Messages</a>
+                        <a href="{{url('/messages')}}" class="text-primary" style="margin:20px;">Messages
+                            @if(Auth::user()->unread_messages == null)
+                                <span class="d-lg-none badge badge-pill up2 info-gray">0</span>
+                            @else
+                                <span class="d-lg-none badge badge-pill up2 info">{{Auth::user()->unread_messages}}</span>
+                            @endif
+                        </a>
 
                     </div>
 
@@ -114,12 +120,12 @@
                         <ul class="nav flex-row order-lg-2">
                             <li class="dropdown d-flex align-items-center">
                                 <a href="#" data-toggle="dropdown" class="d-flex align-items-center">
-                                        <span class="avatar w-32">
+                                        <span class="avatar w-48">
                                           <img src="{{Auth::user()->photo}}">
                                             @if(Auth::user()->unread_messages == null)
-                                                <span class="badge badge-pill up info"></span>
+                                                <span class="badge badge-pill up info-gray">0</span>
                                             @else
-                                                <span class="badge badge-pill up success">{{Auth::user()->unread_messages}}</span>
+                                                <span class="badge badge-pill up info">{{Auth::user()->unread_messages}}</span>
                                             @endif
                                       </span>
                                 </a>
@@ -168,9 +174,7 @@
                                     <div class="dropdown-divider"></div>
 
                                     <li>
-                                        <a class="dropdown-item" href="{{url('/logout')}}">Sign out</a>
-                                    </li>
-                                    <ul/>
+                                        <a class="dropdown-item" href="{{url('/logout')}}">Log Out</a>
                                     </li>
                                 </ul>
                             </li>
