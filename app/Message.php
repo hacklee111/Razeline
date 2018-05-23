@@ -40,6 +40,6 @@ class Message extends Model
 
     public function getMineAttribute() {
         $user = Auth::user();
-        return $user->id === $this->sender_id;
+        return $user->id == $this->sender_id;
     }
 }

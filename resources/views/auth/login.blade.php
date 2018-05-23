@@ -1,4 +1,7 @@
 @extends('layouts.app')
+@section('title')
+    Razeline | Login
+@endsection
 @section('header')
     <meta name="google-signin-scope" content="profile email">
     <meta name="google-signin-client_id"
@@ -30,23 +33,26 @@
                         </div>
 
                         <div class="form-label-group text-center mt-4 mb-4">
-                            <p>or login with email</p>
+                            <p>or login with username/email</p>
                         </div>
 
 
+                        @if ($errors->has('error'))
+                            <p class="text-warning  form-signin">{!! $errors->first('error') !!}</p>
+                        @endif
                         <form class="form-horizontal form-signin" method="POST" action="{{ route('login') }}">
                             {{ csrf_field() }}
 
-                            <div class="form-label-group {{ $errors->has('email') ? 'has-error' : '' }}">
+                            <div class="form-label-group {{ $errors->has('login') ? 'has-error' : '' }}">
 
-                                <input id="email" type="email" class="form-control" name="email"
-                                       placeholder="Email address"
-                                       value="{{ old('email') }}" required autofocus>
+                                <input id="login" type="text" class="form-control" name="login"
+                                       placeholder="Username or Email address"
+                                       value="{{ old('login') }}" required autofocus>
 
-                                <label for="email" class="control-label">E-Mail Address</label>
-                                @if ($errors->has('email'))
+                                <label for="login" class="control-label">Username / E-Mail Address</label>
+                                @if ($errors->has('login'))
                                     <span class="help-block">
-                                        <strong>{{ $errors->first('email') }}</strong>
+                                        <strong>{{ $errors->first('login') }}</strong>
                                     </span>
                                 @endif
 
@@ -94,14 +100,14 @@
 
                         </form>
 
-                        <form id="form-google-sign" class="hidden" method="post" action="{{url('/google-sign')}}">
+                        <form id="form-google-sign" class="hidden" method="post" action="{{url('/social-sign')}}">
                             {{ csrf_field() }}
                             <input type="hidden" id="form_name" name="name" value="">
                             <input type="hidden" id="form_photo_url" name="photo_url">
                             <input type="hidden" id="form_email" name="email">
                         </form>
 
-                        <form id="form-facebook-sign" class="hidden" method="post" action="{{url('/facebook-sign')}}">
+                        <form id="form-facebook-sign" class="hidden" method="post" action="{{url('/social-sign')}}">
                             {{ csrf_field() }}
                             <input type="hidden" id="fb_form_name" name="name">
                             <input type="hidden" id="fb_form_email" name="email">
@@ -168,7 +174,7 @@
         function facebook_login() {
             FB.login(function (response) {
                 statusChangeCallback(response);
-            });
+            }, {scope: 'email, public_profile'});
         };
 
         function facebook_form_signin(response) {
@@ -188,7 +194,7 @@
             // for FB.getLoginStatus().
             if (response.status === 'connected') {
                 // Logged into your app and Facebook.
-                FB.api('/me', {fields: 'name, email'}, function (response) {
+                FB.api('/me', {fields: 'name, email, picture, first_name, last_name'}, function (response) {
                     console.log(JSON.stringify(response));
                     console.log('Successful login for: ' + response.name);
                     if (response.name && response.email) {
@@ -197,7 +203,7 @@
                 });
             } else {
                 // The person is not logged into your app or we are unable to tell.
-                console.log('Please log into this app.');
+                alert('Please log into this app.');
             }
         }
 
@@ -207,7 +213,8 @@
         function checkLoginState() {
             console.log('checkLoginState');
             FB.getLoginStatus(function (response) {
-                statusChangeCallback(response);
+                console.log(response);
+                //statusChangeCallback(response);
             });
         }
 

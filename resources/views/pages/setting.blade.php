@@ -1,5 +1,7 @@
 @extends('layouts.app')
-
+@section('title')
+    Razeline | Settings
+@endsection
 @section('header')
 @endsection
 
@@ -16,15 +18,6 @@
                         <li class="nav-item">
                             <a class="nav-link " href="#" data-toggle="tab" data-target="#tab-2">Security</a>
                         </li>
-
-                        <li class="nav-item">
-                            <a class="nav-link " href="#" data-toggle="tab" data-target="#tab-3">Subscribe</a>
-                        </li>
-
-                        <li class="nav-item">
-                            <a class="nav-link " href="#" data-toggle="tab" data-target="#tab-4">Appearance</a>
-                        </li>
-
                     </ul>
                 </div>
             </div>
@@ -51,11 +44,29 @@
                         </div>
 
                         <div class="form-group">
+                            <label for="background1">Profile background picture</label>
+                            <p>
+                                <img class="img-responsive img-fluid" src="{{url($user->background)}}"/>
+                            </p>
+
+                            <div class="form-file">
+                                <input id="background" type="file" name="background" class="form-control hide">
+                                <label for="background" class="btn btn-secondary">Upload new picture</label>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
                             <label>Name</label>
                             <input type="text" class="form-control" name="name" id="name" value="{{$user->name}}">
                         </div>
+
                         <div class="form-group">
-                            <label>Profession</label>
+                            <label>Username</label>
+                            <input type="text" disabled class="form-control" name="username" id="username" value="{{$user->username}}">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Heading</label>
                             <input type="text" class="form-control" name="profession" id="profession"
                                    value="{{$user->profession}}">
                         </div>
@@ -69,7 +80,11 @@
                         @if($user->type == 'creator')
                             <div class="form-group">
                                 <label>Rate</label>
-                                <input type="text" class="form-control" name="rate" id="rate" value="{{$user->rate}}">
+                                <select name="rate" id="rate" class="form-control">
+                                    @for ($i = 5; $i <= 1000; $i++)
+                                        <option value="{!!$i!!}" @if($i == $user->rate) selected @endif >{!!$i!!}</option>
+                                    @endfor
+                                </select>
                             </div>
                             <div class="form-group">
                                 <label>Do not send</label>
@@ -114,6 +129,7 @@
                         @endif
 
                         <button type="submit" class="btn primary mt-2">Update</button>
+                        <a href="{{url('/profile')}}" class="btn secondary mt-2 info">Back To Profile</a>
                     </form>
                 </div>
 
@@ -133,66 +149,43 @@
                                     <input type="password" class="form-control" name="password_confirmation">
                                 </div>
                                 <button type="submit" class="btn primary mt-2">Update</button>
+                                <a href="{{url('/profile')}}" class="btn secondary mt-2 info">Back To Profile</a>
                             </form>
                         </div>
                     </div>
                 </div>
 
-                <div class="tab-pane" id="tab-3">
+            <!--div class="tab-pane" id="tab-3">
                     <div class="p-4 b-b _600">Subscribe</div>
                     <div class="p-4">
                         <div class="clearfix">
                             {{--<form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">--}}
-                            {{--<input type="hidden" name="cmd" value="_s-xclick">--}}
-                            {{--<input type="hidden" name="hosted_button_id" value="8773GMXCJ4KHW">--}}
-                            {{--<input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_subscribeCC_LG.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">--}}
-                            {{--<img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">--}}
-                            {{--</form>--}}
+            {{--<input type="hidden" name="cmd" value="_s-xclick">--}}
+            {{--<input type="hidden" name="hosted_button_id" value="8773GMXCJ4KHW">--}}
+            {{--<input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_subscribeCC_LG.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">--}}
+            {{--<img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">--}}
+            {{--</form>--}}
 
-                            @if(Auth::user()->subscription_available)
-                                You already subscribed.
-                            @else
+            @if(Auth::user()->subscription_available)
+                You already subscribed.
+@else
 
-                                <form action="https://www.sandbox.paypal.com/cgi-bin/webscr" method="post"
-                                      target="_top">
-                                    <input type="hidden" name="cmd" value="_s-xclick">
-                                    <input type="hidden" name="hosted_button_id" value="LG88SGG5BYHKG">
-                                    <input type="image"
-                                           src="https://www.sandbox.paypal.com/en_US/i/btn/btn_subscribeCC_LG.gif"
-                                           border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
-                                    <img alt="" border="0" src="https://www.sandbox.paypal.com/en_US/i/scr/pixel.gif"
-                                         width="1" height="1">
-                                </form>
+                <form action="https://www.sandbox.paypal.com/cgi-bin/webscr" method="post"
+                      target="_top">
+                    <input type="hidden" name="cmd" value="_s-xclick">
+                    <input type="hidden" name="hosted_button_id" value="LG88SGG5BYHKG">
+                    <input type="image"
+                           src="https://www.sandbox.paypal.com/en_US/i/btn/btn_subscribeCC_LG.gif"
+                           border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
+                    <img alt="" border="0" src="https://www.sandbox.paypal.com/en_US/i/scr/pixel.gif"
+                         width="1" height="1">
+                </form>
 
-                            @endif
+@endif
 
-                        </div>
                     </div>
                 </div>
-
-                <div class="tab-pane" id="tab-4">
-                    <div class="p-4 b-b _600">Appearance</div>
-
-                    <form role="form" class="p-4 col-md-6" method="post" action="{{url('/profile')}}"
-                          enctype="multipart/form-data">
-                        <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                        <div class="form-group">
-                            <label for="background1">Profile background picture</label>
-                            <p>
-                                <img class="img-responsive img-fluid" src="{{url($user->background)}}"/>
-                            </p>
-
-                            <div class="form-file">
-                                <input id="background" type="file" name="background" class="form-control hide">
-                                <label for="background" class="btn btn-secondary">Upload new picture</label>
-                            </div>
-                        </div>
-
-                        <button type="submit" class="btn primary mt-2">Update</button>
-                    </form>
-
-
-                </div>
+            </div-->
             </div>
         </div>
     </div>

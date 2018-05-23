@@ -1,5 +1,7 @@
 @extends('layouts.app')
-
+@section('title')
+    Razeline | Find a Creator
+@endsection
 @section('content')
 
     <div class="item">
@@ -13,7 +15,7 @@
                         <h3 class="my-5" style=" text-align: center; color:#fff">CONNECT DIRECTLY WITH INFLUENCERS AND
                             CREATORS</h3>
                         <div class="my-3">
-                            <form class="input-group m-2 my-lg-0" method="get" action="{{url('/find')}}">
+                            <form class="input-group m-2 my-lg-0" method="get" action="{{url('/find#creator_list')}}">
                                 <input type="hidden" name="_token" value="{{ csrf_token() }}">
 
                                 <input type="text" name="keyword" id="text-keyword" placeholder="Enter creator name">
@@ -69,22 +71,35 @@
                         </div>
                     </div>
                 </div>
-                <p class="my-5"><strong>You need a valid credit card attached to your PayPal account in order send a message.</strong></p>
+                <p class="my-5"><strong>You need a valid credit card attached to your PayPal account in order send a
+                        message.</strong></p>
             </div>
         </div>
+
 
         <div class="py-5 white" id="found_creator_list">
             <div class="home-section-column container">
                 <h2>FIND A CREATOR</h2>
 
-                <div class="section-creators p-1 p-sm-3">
-                    @foreach($creators as $c)
+                <div class="section-creators p-1 p-sm-3" id="creator_list">
+                    @forelse($creators as $c)
                         <div class="section-creator my-5">
                             <div class="section-creator-header">
-                                <img src="{{$c->photo}}" class="circle w-80 md-w-240 save-aspect">
+                                @if($c->username)
+                                <a href="{{url('/profile')}}/{{$c->username}}"
+                                   class="text-primary">
+                                <img src="{{$c->photo}}" class="circle w-80 md-w-240">
+                                </a>
+                                @else
+                                    <a href="{{url('/profile').'?user='.base64_encode($c->id)}}"
+                                       class="text-primary">
+                                        <img src="{{$c->photo}}" class="circle w-80 md-w-240">
+                                    </a>
+                                @endif
+
                                 <h5 class="creator_name">
-                                    @if($c->slug_name)
-                                        <a href="{{url('/profile')}}/{{$c->slug_name}}"
+                                    @if($c->username)
+                                        <a href="{{url('/profile')}}/{{$c->username}}"
                                            class="text-primary">{{$c->name}}</a>
                                     @else
                                         <a href="{{url('/profile').'?user='.base64_encode($c->id)}}"
@@ -101,18 +116,42 @@
                                href="{{url('/messages')}}?user={{$c->id}}"><i
                                         class="fa fa-comment-o"></i>&nbsp;&nbsp;Message</a>
                         </div>
-                    @endforeach
+                    @empty
+
+                        <h5>Not Found. Please try with other keywords.</h5>
+
+                    @endforelse
                 </div>
             </div>
         </div>
+
     </div>
 @endsection
 @section('script')
     <script>
-        function goto_creator_tab() {
-            $('html, body').animate({
-                scrollTop: $("#found_creator_list").offset().top
-            }, 2000);
-        }
+                function goto_creator_tab() {
+                    $('html, body').animate({
+                        scrollTop: $("#creator_list").offset().top
+                    }, 2000);
+                }
+        //
+        //        function goto_first_result() {
+        //            if ($('#creator_list_top').length > 0) {
+        //
+        //                //$('#creator_list_top div:first').focus();
+        //
+        //                $('html, body').animate({
+        //                    scrollTop: $("#creator_list_top").offset().top
+        //                }, 300);
+        //            }
+        //        }
+        //
+        //        $(document).ready(function () {
+        //            if ($('.section-creator').length > 0) {
+        //                //goto_creator_tab();
+        //                goto_first_result();
+        //            }
+        //        })
+
     </script>
 @endsection

@@ -1,5 +1,7 @@
 @extends('layouts.app')
-
+@section('title')
+    Razeline | Profile
+@endsection
 @section('header')
     <style>
         .img-bg {
@@ -26,7 +28,7 @@
     <div class="full-ob bg-cover" style="background-image:url({{$user->background}});">
 
         <div class="container section-profile full-ob">
-            <div class="row pt-3 pb-5">
+            <div class="row pt-3 pb-1">
                 <div class="col-md-6 offset-md-3 col-sm-8 offset-sm-2">
                     <h2 class="profile-name text-center">
                         @if($user->me)
@@ -40,9 +42,20 @@
             </div>
 
             <div class="row py-3">
+                <div class="col-md-12 pb-1">
+                    @if(Auth::user())
+                        @if( Auth::user()->type == 'creator' && $user->id == Auth::user()->id )
+                            <h5 class="text-center">Copy and paste this link:</h5>
+                            <p class="text-center text-break"><a
+                                        href="{{url('/username/'.$user->username)}}">{!! url('/username').'/'.$user->username !!}</a>
+                            </p>
+                        @endif
+                    @endif
+                </div>
+
                 <div class="col-md-5 col-sm-6">
                     <div class="pos-rlt text-center">
-                        <img src="{{$user->photo}}" alt="." class="profil-photo save-aspect img-responsive">
+                        <img src="{{$user->photo}}" alt="." class="profil-photo img-responsive">
                     </div>
                     <div class="text-center mt-5">
                         @if(!$user->me)
@@ -52,9 +65,9 @@
                         @endif
                     </div>
                 </div>
-                <div class="col-md-7 col-sm-6 my-4 ">
+                <div class="col-md-7 col-sm-6 my-4 my-sm-0">
 
-                    <div class="d-flex flex-wrap" style="justify-content: space-between;">
+                    <div class="d-flex flex-wrap py-2" style="justify-content: space-between;">
 
                         <h4>{{$user->name}}</h4>
                         @if($user->me)
@@ -64,6 +77,13 @@
                     </div>
 
 
+                    <div class="row py-2">
+                        <div class="col-sm-4">
+                            <h5>Username:</h5>
+                        </div>
+                        <div class="col-md-8"><p>{{$user->username}}</p></div>
+                    </div>
+
                     @if($user->type == 'creator')
                         <div class="row py-2">
                             <p class="col-md-12"> {{$user->profession}}</p>
@@ -72,7 +92,6 @@
                         <div class="row py-2">
                             <p class="col-md-12">{{$user->description}}</p>
                         </div>
-
 
                         <div class="row py-2">
                             <div class="col-sm-4">
@@ -105,22 +124,6 @@
                             </div>
                             <div class="col-md-8">
                                 <p>{{$user->gender}}</p>
-                            </div>
-                        </div>
-
-                        <div class="row py-2">
-                            <div class="col-sm-4">
-                                <h5>Education:</h5>
-                            </div>
-                            <div class="col-md-8"><p>{{$user->education}}</p></div>
-                        </div>
-
-                        <div class="row py-2">
-                            <div class="col-sm-4">
-                                <h5>Profession:</h5>
-                            </div>
-                            <div class="col-md-8">
-                                <p>{{$user->profession}}</p>
                             </div>
                         </div>
 

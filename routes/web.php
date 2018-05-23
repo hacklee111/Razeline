@@ -16,11 +16,16 @@ use Illuminate\Support\Facades\Mail;
 Route::get('/', 'HomeController@index');
 Route::get('/home', 'HomeController@index')->name('home');
 Route::get('/find', 'HomeController@findCreators');
+Route::get('/terms', 'HomeController@terms');
+Route::get('/privacy', 'HomeController@privacy');
 
 Route::post('/google-sign', 'HomeController@googleSign');
 Route::post('/facebook-sign', 'HomeController@facebookSign');
-
+Route::post('/social-sign', 'HomeController@socialSign')->name('socialSign');
+Route::post('/register-social-submit', 'HomeController@registerSocialSubmit');
 Route::get('/activate_user', 'HomeController@activateUser');
+
+Route::get('/username/{slug}', 'HomeController@profile');
 
 Route::get('/test', function() {
     $user = Auth::user();
@@ -44,7 +49,7 @@ Auth::routes();
 Route::get('/messages', 'HomeController@showMessages');
 Route::post('/messages/{id}/send', 'HomeController@sendMessage');
 
-Route::get('/profile/{slug?}', 'HomeController@profile');
+Route::get('/profile/{slug?}', 'HomeController@profile')->name('profile');
 Route::post('/profile', 'HomeController@updateProfile');
 Route::get('/settings', 'HomeController@settings');
 

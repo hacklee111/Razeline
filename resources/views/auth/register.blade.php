@@ -1,5 +1,7 @@
 @extends('layouts.app')
-
+@section('title')
+    Razeline | Register
+@endsection
 @section('header')
     <meta name="google-signin-scope" content="profile email">
     <meta name="google-signin-client_id"
@@ -100,6 +102,23 @@
                                 @endif
                             </div>
 
+                            <div class="form-label-group{{ $errors->has('username') ? ' has-error' : '' }}">
+
+                                <input id="username" type="text" class="form-control" name="username" placeholder="Username"
+                                       pattern="^[A-Za-z0-9_]{1,15}$" title="Only Characters and numbers are allowed with no spaces."
+                                       value="{{ old('username') }}" required autocomplete="username">
+
+                                <label for="username" class="control-label" >Username<span
+                                            class="asterisk">*</span></label>
+
+                                @if ($errors->has('username'))
+                                    <span class="help-block">
+                                        <strong>{{ $errors->first('username') }}</strong>
+                                    </span>
+                                @endif
+                            </div>
+                            <label class="sub">Please use up to 16 of characters and no spaces.</label>
+
                             <div class="form-label-group{{ $errors->has('email') ? ' has-error' : '' }}">
 
                                 <input id="email" type="email" class="form-control" name="email" placeholder="Email"
@@ -157,9 +176,9 @@
 
                             <div class="form-group row no-gutters">
 
-                                <label for="gender" class="control-label col-4">Gender</label>
+                                <label for="gender" class="control-label col-md-4">Gender</label>
 
-                                <select name="gender" id="gender" class="form-control col-8">
+                                <select name="gender" id="gender" class="form-control col-md-8">
                                     <option value="male">Male</option>
                                     <option value="female">Female</option>
                                 </select>
@@ -167,10 +186,10 @@
                             </div>
 
                             <div class="form-group row no-gutters">
-                                <label for="type" class="control-label col-4">User Type<span
+                                <label for="type" class="control-label col-md-4">User Type<span
                                             class="asterisk">*</span></label>
 
-                                <select name="type" id="type" class="form-control col-8">
+                                <select name="type" id="type" class="form-control col-md-8">
                                     <option value="creator">Creator</option>
                                     <option value="fan">Fan</option>
                                 </select>
@@ -195,35 +214,36 @@
                             </div>
 
                             <div class="form-group row no-gutters" id="group_description">
-                                <label for="description" class="control-label col-4">Description<span
-                                            class="asterisk">*</span></label>
-                                <textarea id="description" name="description" class="form-control col-8"
-                                          required></textarea>
+                                <!--label for="description" class="control-label col-md-4">Description<span
+                                            class="asterisk">*</span></label-->
+                                <textarea id="description" name="description" class="form-control col-md-12"
+                                          required placeholder="Description*" rows="6"></textarea>
                             </div>
 
                             <div class="form-group row no-gutters" id="group_rate">
 
-                                <label for="rate" class="control-label col-4">Rate<span
+                                <label for="rate" class="control-label col-md-4">Rate<span
                                             class="asterisk">*</span></label>
 
-                                <input type="number" id="rate" name="rate" class="form-control col-8" min="5"
-                                       max="1000" required step="1"
-                                       onkeypress="return event.charCode >= 48 && event.charCode <= 57">
-
+                                <select name="rate" id="rate" class="form-control col-md-8" required>
+                                    @for ($i = 5; $i <= 1000; $i++)
+                                        <option value="{!!$i!!}" >{!!$i!!}</option>
+                                    @endfor
+                                </select>
 
                             </div>
 
                             <div class="form-group row no-gutters" id="group_do_not_send">
-                                <label for="do_not_send" class="control-label col-4">Do not send<span
+                                <label for="do_not_send" class="control-label col-md-4">Do not send<span
                                             class="asterisk">*</span></label>
 
-                                <textarea id="do_not_send" name="do_not_send" class="form-control col-8"
+                                <textarea id="do_not_send" name="do_not_send" class="form-control col-md-8"
                                           required></textarea>
                             </div>
 
                             <div class="form-group row no-gutters">
-                                <label for="file" class="control-label col-4">Profile Picture*</label>
-                                <div class="form-file col-8">
+                                <label for="file" class="control-label col-md-4">Profile Picture*</label>
+                                <div class="form-file col-md-8">
                                     <input id="f01" type="file" name="photo" class="form-control hide"
                                            placeholder="Add profile picture" required/>
                                     <label for="f01" class="btn btn-secondary">Upload File</label>
@@ -237,14 +257,14 @@
                             <h6 class="text-center mt-3"><a class="btn-link" href="{{url('/login')}}">Log in</a></h6>
 
                         </form>
-                        <form id="form-google-sign" method="post" action="{{url('/google-sign')}}">
+                        <form id="form-google-sign" method="post" action="{{url('/social-sign')}}">
                             {{ csrf_field() }}
                             <input type="hidden" id="form_name" name="name" value="">
                             <input type="hidden" id="form_photo_url" name="photo_url">
                             <input type="hidden" id="form_email" name="email">
                         </form>
 
-                        <form id="form-facebook-sign" class="hidden" method="post" action="{{url('/facebook-sign')}}">
+                        <form id="form-facebook-sign" class="hidden" method="post" action="{{url('/social-sign')}}">
                             {{ csrf_field() }}
                             <input type="hidden" id="fb_form_name" name="name">
                             <input type="hidden" id="fb_form_email" name="email">
@@ -308,6 +328,7 @@
     </script>
 
     <script src="https://apis.google.com/js/platform.js?onload=init"></script>
+
     <script>
         //Google Signin
         var auth2;
@@ -383,16 +404,22 @@
         var fbAccessToken;
         // This is called with the results from from FB.getLoginStatus().
         function statusChangeCallback(response) {
+            console.log('statuschangecallback');
             if (response.status === 'connected') {
 
                 // Logged into your app and Facebook.
-                FB.api('/me', {fields: 'name, email'}, function(response) {
+                FB.api('/me', {fields:'name, email, picture, first_name, last_name'}, function(response) {
+                    console.log(response);
                     if( response.name && response.email ){
                         facebook_form_signin(response);
+                    } else {
+                        alert('Failed to get your fb accoount info');
+                        return;
                     }
                 });
             } else {
                 // The person is not logged into your app or we are unable to tell.
+
                 alert('Please log into this app.');
             }
         }
@@ -432,7 +459,11 @@
                 console.log(response);
                 //statusChangeCallback(response);
                 //get access token
-                fbAccessToken = response.authResponse.accessToken;
+                if(response.status=="unknown"){
+                    return;
+                } else{
+                   fbAccessToken = response.authResponse.accessToken;
+                }
             });
 
         };
@@ -449,12 +480,10 @@
         function facebook_login(){
             FB.login(function(response){
                 statusChangeCallback(response);
-            });
+            }, {scope:'email, public_profile'});
         }
 
         function facebook_form_signin(response) {
-            console.log('fb_submit');
-            console.log(response);
             var form1 = $('#form-facebook-sign');
             document.getElementById("fb_form_name").value = response.name;
             document.getElementById("fb_form_email").value = response.email;
@@ -462,9 +491,7 @@
         }
 
         function facebook_logout(fbAccessToken){
-            console.log('user fb logout');
             FB.logout(function(response){
-                console.log(response);
                 $('#fb_signout').fadeOut('slow');
                 $('#fb_signin').fadeIn('slow');
                 window.location.reload();

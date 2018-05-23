@@ -14,6 +14,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Session;
 use PayPal\Exception\PayPalConnectionException;
 use Pusher;
 use Paypal;
@@ -30,15 +31,15 @@ class HomeController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('auth')->except(['findCreators', 'index', 'profile', 'googleSign', 'facebookSign']);
+        $this->middleware('auth')->except(['findCreators', 'index', 'profile', 'googleSign', 'facebookSign', 'socialSign', 'registerSocialSubmit', 'terms', 'privacy']);
 
         $this->_apiContext = PayPal::ApiContext(
             config('services.paypal.client_id'),
             config('services.paypal.secret'));
 
         $this->_apiContext->setConfig(array(
-            'mode' => 'sandbox',
-            'service.EndPoint' => 'https://api.sandbox.paypal.com',
+            'mode' => 'live',
+            'service.EndPoint' => 'https://api.paypal.com',
             'http.ConnectionTimeOut' => 30,
             'log.LogEnabled' => true,
             'log.FileName' => storage_path('logs/paypal.log'),
@@ -60,14 +61,23 @@ class HomeController extends Controller
         ]);
     }
 
+    public function terms(){
+        return view('pages.terms');
+    }
+
+    public function privacy(){
+        return view('pages.privacy');
+    }
+
     public function findCreators(Request $request)
     {
         $creators = User::where('type', 'creator')->get();
 
+        $has_keyword = false;
+
         if ($request->has('keyword')) {
             $keyword = $request->input('keyword');
-
-
+            $has_keyword = true;
             $creators = User::where('type', 'creator')
                 ->where(function ($query) use ($keyword) {
                     $query->where('name', 'like', '%' . $keyword . '%')
@@ -79,7 +89,7 @@ class HomeController extends Controller
 
         return view('pages.find', [
             'creators' => $creators
-        ]);
+        ])->with('has_keyword', $has_keyword)->with('menu', 'find');
     }
 
     public function showMessages(Request $request)
@@ -93,7 +103,15 @@ class HomeController extends Controller
         if ($request->has('user')) {
             $user_id = $request->input('user');
 
-            if ($type == "creator") {
+            //prevent self message
+            if ($user_id == $mi) {
+                return redirect()->back()->with('error', 'You can not send message to yourself.');
+            }
+
+            $user = User::find($user_id);
+            $user_type = $user->type;
+
+            if ($type == "creator" && $user_type != "creator") {
                 //view customer profile and make channel
                 $channel = MessageChannel::where('creator_id', $mi)
                     ->where('fan_id', $user_id)
@@ -103,11 +121,39 @@ class HomeController extends Controller
                     $channel = new MessageChannel;
                     $channel->creator_id = $mi;
                     $channel->fan_id = $user_id;
-                    $channel->last_message = "";
+                    $channel->last_message_creator = "";
+                    $channel->last_message_fan = "";
                     $channel->save();
                 }
 
                 $active_channel = $channel;
+
+            } else if ($type == "creator" && $user_type == "creator") {
+                $channel1 = MessageChannel::where('creator_id', $mi)
+                    ->where('fan_id', $user_id)
+                    ->get()->first();
+
+                $channel2 = MessageChannel::where('creator_id', $user_id)
+                    ->where('fan_id', $mi)
+                    ->get()->first();
+
+                if ($channel1) {
+                    $active_channel = $channel1;
+                } else {
+                    if ($channel2) {
+                        $active_channel = $channel2;
+
+                    } else {
+                        $channel_new = new MessageChannel;
+                        $channel_new->creator_id = $user_id;
+                        $channel_new->fan_id = $mi;
+                        $channel_new->last_message_creator = "";
+                        $channel_new->last_message_fan = "";
+                        $channel_new->save();
+
+                        $active_channel = $channel_new;
+                    }
+                }
 
             } else {
 
@@ -120,7 +166,8 @@ class HomeController extends Controller
                     $channel = new MessageChannel;
                     $channel->creator_id = $user_id;
                     $channel->fan_id = $mi;
-                    $channel->last_message = "";
+                    $channel->last_message_creator = "";
+                    $channel->last_message_fan = "";
                     $channel->save();
                 }
 
@@ -133,15 +180,19 @@ class HomeController extends Controller
             }
         }
 
+        $error = "";
+        if ($request->has('error')) {
+            $error = $request->input('error');
+        }
+
         $channels = MessageChannel::where(function ($query) use ($mi) {
             $query->where('creator_id', $mi)
                 ->orWhere('fan_id', $mi);
-        })->orderBy('updated_at', 'DESC')
-            ->get();
+        })->orderBy('updated_at', 'DESC')->get();
 
-        if ($active_channel == null) {
-            $active_channel = $channels->first();
-        }
+//        if ($active_channel == null) {
+//            $active_channel = $channels->first();
+//        }
 
         $messages = [];
         if ($active_channel) {
@@ -165,7 +216,9 @@ class HomeController extends Controller
             'channels' => $channels,
             'messages' => $messages,
             'active_channel' => $active_channel,
-        ]);
+            'bodyclass' => 'message-body',
+            'error' => $error
+        ])->with('menu', 'messages');
     }
 
     //ajax call
@@ -192,7 +245,7 @@ class HomeController extends Controller
         $fan_id = $channel->fan_id;
 
 
-        if ($me->type == User::USER_TYPE_CREATOR || $me->subscription_available) {
+        if ($me->type == User::USER_TYPE_CREATOR && $channel->creator_id == $mi) {
 
             $message->status = Message::MESSAGE_STATUS_APPROVED;
 
@@ -219,8 +272,12 @@ class HomeController extends Controller
             $message->text = $message->message;
             $message->my_id = $mi;
 
-            Pusher::trigger('chat' . $id,
-                'new-message', $message);
+            //update last message
+            $channel->last_message_creator = $message->message;
+            $channel->last_mc_date = date('n/j/y');
+            $channel->save();
+
+            Pusher::trigger('chat' . $id, 'new-message', $message);
 
         } else {
 
@@ -235,7 +292,7 @@ class HomeController extends Controller
 
             $transaction = PayPal::Transaction();
             $transaction->setAmount($amount);
-            $transaction->setDescription('Message to ' . $creator->name);
+            $transaction->setDescription('Message to ' . $creator->name . 'with Price $' . $rate);
 
             $redirectUrls = PayPal:: RedirectUrls();
             $redirectUrls->setReturnUrl(action('HomeController@paymentConfirm'));
@@ -256,7 +313,83 @@ class HomeController extends Controller
             $message->payment_id = $paymentID;
             $message->save();
 
+            Session::put('cpaymentid', $paymentID);
+
             return Redirect::to($redirectUrl);
+        }
+    }
+
+    public function paymentConfirm(Request $request)
+    {
+        $mi = Auth::user()->id;
+
+        $id = $request->get('paymentId');
+        $token = $request->get('token');
+        $payer_id = $request->get('PayerID');
+
+        $payment = PayPal::getById($id, $this->_apiContext);
+
+        //dd($payment);
+
+        $paymentExecution = PayPal::PaymentExecution();
+
+        $paymentExecution->setPayerId($payer_id);
+
+        $executePayment = $payment->execute($paymentExecution, $this->_apiContext);
+
+
+        // Clear the shopping cart, write to database, send notifications, etc.
+
+        $message = Message::where('payment_id', $id)->get()->first();
+        if ($message == null) {
+            echo "Error occurred while sending message. Please contact customer support.";
+        } else {
+            $message->status = Message::MESSAGE_STATUS_APPROVED;
+            $message->save();
+
+            $channel = MessageChannel::find($message->channel_id);
+            $creator = User::find($channel->creator_id);
+
+            //update last message
+            $channel->last_message_fan = $message->message;
+            $channel->last_mf_date = date('n/j/y');
+            $channel->save();
+
+            //send email notification here
+            Mail::to($creator)->queue(new MessageResponse($message));
+
+            $message->text = $message->message;
+            $message->my_id = $mi;
+
+            Pusher::trigger('chat' . $message->channel_id,
+                'new-message', $message);
+
+            return redirect()->action(
+                'HomeController@showMessages', ['channel' => $message->channel_id]
+            );
+        }
+        // Thank the user for the purchase
+
+    }
+
+    public function paymentCancel(Request $request)
+    {
+        if (Session::has('cpaymentid')) {
+            $paymentId = Session::get('cpaymentid');
+            $message = Message::where('payment_id', $paymentId)->get()->first();
+        } else {
+            $mi = Auth::user()->id;
+            //get last message of this user
+            $message = Message::where('sender_id', $mi)->last();
+        }
+
+        if ($message != null) {
+            $message->status = Message::MESSAGE_STATUS_CANCELED;
+            $message->save();
+
+            return redirect()->action(
+                'HomeController@showMessages', ['channel' => $message->channel_id, 'error' => 'Please add a Valid credit card to your PayPal account to send a message']
+            );
         }
     }
 
@@ -265,7 +398,7 @@ class HomeController extends Controller
         $user = null;
 
         if ($slug != null) {
-            $user = User::where('slug_name', $slug)->get()->first();
+            $user = User::where('username', $slug)->get()->first();
         } else if ($request->has('user')) {
 
             $e_user_id = $request->input('user');
@@ -280,7 +413,19 @@ class HomeController extends Controller
 
         return view('pages.profile', [
             'user' => $user
-        ]);
+        ])->with('menu', 'profile');
+    }
+
+    public function public_profile($slug)
+    {
+        $user = User::where('username', $slug)->get()->first();
+        if ($user) {
+            return view('pages.profile', [
+                'user' => $user
+            ])->with('menu', 'profile');
+        } else {
+            return redirect('/home')->withErrors('Could not find a User with the name');
+        }
     }
 
     public function updateProfile(Request $request)
@@ -289,6 +434,10 @@ class HomeController extends Controller
         if ($request->has('name')) {
             $me->name = $request->input('name');
         }
+
+//        if ($request->has('username')) {
+//            $me->username = $request->input('username');
+//        }
 
         if ($request->has('password') && $request->input('password') != "") {
             $password = $request->input('password');
@@ -357,10 +506,11 @@ class HomeController extends Controller
         }
 
         $me->save();
+        return redirect()->route('profile');
 
-        return view('pages.setting', [
-            'user' => $me
-        ]);
+//        return view('pages.setting', [
+//            'user' => $me
+//        ]);
     }
 
     public function settings(Request $request)
@@ -369,72 +519,9 @@ class HomeController extends Controller
 
         return view('pages.setting', [
             'user' => $user
-        ]);
+        ])->with('menu', 'settings');
     }
 
-    public function paymentConfirm(Request $request)
-    {
-        $mi = Auth::user()->id;
-
-        $id = $request->get('paymentId');
-        $token = $request->get('token');
-        $payer_id = $request->get('PayerID');
-
-        $payment = PayPal::getById($id, $this->_apiContext);
-
-        //dd($payment);
-
-        $paymentExecution = PayPal::PaymentExecution();
-
-        $paymentExecution->setPayerId($payer_id);
-
-        $executePayment = $payment->execute($paymentExecution, $this->_apiContext);
-
-
-        // Clear the shopping cart, write to database, send notifications, etc.
-
-        $message = Message::where('payment_id', $id)->get()->first();
-        if ($message == null) {
-            echo "Error occurred while sending message. Please contact customer support.";
-        } else {
-            $message->status = Message::MESSAGE_STATUS_APPROVED;
-            $message->save();
-
-            $channel = MessageChannel::find($message->channel_id);
-            $creator = User::find($channel->creator_id);
-
-            //send email notification here
-            Mail::to($creator)->queue(new MessageResponse($message));
-
-
-            $message->text = $message->message;
-            $message->my_id = $mi;
-
-            Pusher::trigger('chat' . $message->channel_id,
-                'new-message', $message);
-
-            return redirect()->action(
-                'HomeController@showMessages', ['channel' => $message->channel_id]
-            );
-        }
-        // Thank the user for the purchase
-
-    }
-
-    public function paymentCancel(Request $request)
-    {
-        $paymentId = $request->get('paymentId');
-        $message = Message::where('payment_id', $paymentId)->get()->first();
-
-        if ($message != null) {
-            $message->status = Message::MESSAGE_STATUS_CANCELED;
-            $message->save();
-
-            return redirect()->action(
-                'HomeController@showMessages', ['channel' => $message->channel_id]
-            );
-        }
-    }
 
     public function testPayment(Request $request)
     {
@@ -545,7 +632,7 @@ class HomeController extends Controller
 //                'google_signedin' => true,
 //            ]);
 
-            return redirect()->route('register')->with('email', $email)->with('name', $name)->with('google_signedin', true);
+            return redirect()->route('register')->with('email', $email)->with('name', $name)->with('google_signedin', true)->with('menu', 'register');
 
         } else {
             Auth::login($user);
@@ -553,7 +640,6 @@ class HomeController extends Controller
             return redirect()->action('HomeController@index');
         }
     }
-
 
 
     public function facebookSign(Request $request)
@@ -571,12 +657,106 @@ class HomeController extends Controller
 //                'facebook_signedin' => true,
 //            ]);
 
-            return redirect()->route('register')->with('email', $email)->with('name', $name)->with('facebook_signedin', true);
+            return redirect()->route('register')->with('email', $email)->with('name', $name)->with('facebook_signedin', true)->with('menu', 'register');
 
         } else {
             Auth::login($user);
             return redirect()->action('HomeController@index');
         }
+    }
+
+    public function socialSign(Request $request)
+    {
+        $email = $request->input('email');
+        $name = $request->input('name');
+
+        $user = User::where('email', $email)->get()->first();
+
+        if ($user == null) {
+            return view('auth.social_register', [
+                'email' => $email,
+                'name' => $name,
+            ])->with('menu', 'register');
+        } else {
+            Auth::login($user);
+            return redirect()->action('HomeController@index');
+        }
+    }
+
+    public function registerSocialSubmit(Request $request)
+    {
+        $name = $request->input('name');
+        $email = $request->input('email');
+        $username = $request->input('username');
+        $password = bcrypt('########');
+
+        //check username
+        $scount = count(User::where('username', $username)->get());
+        if ($scount > 0) {
+            return redirect()->back()->withErrors('username', 'The username already exists')->with('menu', 'register');
+        }
+
+        $type = $request->input('type');
+
+        $create_data = [
+            'name' => $name,
+            'username' => $username,
+            'email' => $email,
+            'password' => $password,
+            'type' => $type,
+        ];
+
+
+        if ($request->has('birthday'))
+            $create_data['birthday'] = $request->input('birthday');
+
+        if ($request->has('gender'))
+            $create_data['gender'] = $request->input('gender');
+
+        if ($request->has('profession'))
+            $create_data['profession'] = $request->input('profession');
+
+        if ($request->has('description'))
+            $create_data['description'] = $request->input('description');
+
+        if ($request->has('do_not_send'))
+            $create_data['do_not_send'] = $request->input('do_not_send');
+
+        if ($request->has('rate'))
+            $create_data['rate'] = $request->input('rate');
+
+        //$create_data['username'] = User::getSlugName($name);
+
+        $user = User::create($create_data);
+
+        if ($request->hasFile('photo') && $request->file('photo')->isValid()) {
+
+            $photo = $request->file('photo');
+
+            $file_name = 'photo_' . $user->id . '_' . str_random(8) . '.' .
+                $photo->getClientOriginalExtension();
+
+            $photo->move(
+                base_path() . '/public/attachments/', $file_name
+            );
+
+            $url = './attachments/' . $file_name;
+
+            $user->photo = $url;
+        }
+
+        //pending status
+        $user->status = User::USER_STATUS_PENDING;
+
+        $user->save();
+
+        $act_link = url('/actvate_user?user=' . base64_encode($user->id));
+
+        //send signup email
+        Mail::to($user)->queue(new MessageSignup($name, $email, $act_link));
+
+        Auth::login($user);
+        return redirect()->action('HomeController@index');
     }
 
 

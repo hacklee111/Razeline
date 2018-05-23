@@ -62,6 +62,7 @@ class RegisterController extends Controller
 
         return Validator::make($data, [
             'name' => 'required|string|max:255',
+            'username' => 'nullable|string|max:255|unique:users',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'string|min:6|confirmed',
         ]);
@@ -107,7 +108,11 @@ class RegisterController extends Controller
         if (array_key_exists('rate', $data))
             $create_data['rate'] = $data['rate'];
 
-        $create_data['slug_name'] = User::getSlugName($data['name']);
+        if(array_key_exists('username', $data)){
+            $create_data['username'] = $data['username'];
+        } else {
+            $create_data['username'] = User::getSlugName($data['name']);
+        }
 
         $user = User::create($create_data);
 

@@ -1,5 +1,7 @@
 @extends('layouts.app')
-
+@section('title')
+    Welcome To Razeline
+@endsection
 @section('content')
 
     <div class="item">

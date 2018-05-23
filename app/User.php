@@ -6,6 +6,7 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
+use App\MessageChannel;
 
 class User extends Authenticatable
 {
@@ -19,7 +20,7 @@ class User extends Authenticatable
     protected $fillable = [
         'name', 'email', 'password',
         'type', 'birthday', 'gender', 'education', 'profession', 'description', 'photo', 'do_not_send', 'rate', 'status',
-        'subscription_end_at', 'slug_name', 'background'
+        'subscription_end_at', 'username', 'background'
     ];
 
     /**
@@ -69,6 +70,7 @@ class User extends Authenticatable
         $messages = Message::whereIn('channel_id', $channel_ids)
             ->where('sender_id', '<>', $mi)
             ->where('read', '<>', true)
+            ->whereNotIn('status', [Message::MESSAGE_STATUS_PENDING, Message::MESSAGE_STATUS_CANCELED])
             ->get();
 
         $count =$messages ? $messages->count() : 0;
@@ -79,7 +81,7 @@ class User extends Authenticatable
     }
 
     public function getSubscriptionAvailableAttribute() {
-        return true;
+        return false;
         //return $this->subscription_end_at && Carbon::now()->lt(Carbon::parse($this->subscription_end_at));
     }
 
@@ -106,7 +108,7 @@ class User extends Authenticatable
                 ->get();
 
             foreach($messages as $m) {
-                $amount += $m->rate;
+                $amount += $user->rate;
             }
 
             return $amount;
@@ -129,7 +131,7 @@ class User extends Authenticatable
                 ->get();
 
             foreach($messages as $m) {
-                $amount += $m->rate;
+                $amount += $user->rate;
             }
 
             return $amount;
@@ -153,7 +155,7 @@ class User extends Authenticatable
                 ->get();
 
             foreach($messages as $m) {
-                $amount += $m->rate;
+                $amount += $user->rate;
             }
 
             return $amount;
@@ -176,7 +178,7 @@ class User extends Authenticatable
 
     static public function getSlugName($fullname) {
         $slug = str_slug($fullname, '-');
-        $userRows = User::whereRaw("slug_name REGEXP '^{$slug}(-[0-9]*)?$'")->get();
+        $userRows = User::whereRaw("username REGEXP '^{$slug}(-[0-9]*)?$'")->get();
         $countUser = count($userRows) + 1;
 
         return ($countUser > 1) ? "{$slug}-{$countUser}" : $slug;

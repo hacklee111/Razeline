@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8"/>
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Razeline</title>
+    <title>@yield('title')</title>
     <meta name="description" content="Responsive, Bootstrap, BS4"/>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimal-ui"/>
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -28,7 +28,7 @@
 
     @yield('header')
 </head>
-<body>
+<body class="mob-p-ls-10  @if(!empty($bodyclass)) {!! $bodyclass !!} @endif">
 <!-- scroll to top -->
 <div id="top"></div>
 <div class="app" id="app">
@@ -51,8 +51,7 @@
                     </svg>
                 </a>
                 <div class="collapse navbar-collapse no-grow order-lg-1" id="navbarToggler">
-                    <form class="input-group m-2 my-lg-0 header-search-form" method="get" action="{{url('/find')}}">
-                        <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                    <form class="input-group m-2 my-lg-0 header-search-form" method="get" action="{{url('/find#creator_list')}}"><input type="hidden" name="_token" value="{{ csrf_token() }}">
                         <span class="input-group-btn">
 		                        <button type="button" class="btn no-border no-bg no-shadow"><i class="fa fa-search"></i></button>
 		                    </span>
@@ -62,13 +61,13 @@
 
 
                     <div class="no-grow order-lg-1 nav-menu-item">
-                        <a href="{{url('/find')}}" class="text-primary"
+                        <a href="{{url('/find')}}" class="text-primary @if(!empty($menu) && $menu == 'find')) active_menu @endif"
                            style="margin:20px;">Find&nbsp;a&nbsp;creator</a>
                     </div>
 
                     <div class="no-grow order-lg-1 nav-menu-item">
 
-                        <a href="{{url('/messages')}}" class="text-primary" style="margin:20px;">Messages
+                        <a href="{{url('/messages')}}" class="text-primary @if(!empty($menu) && $menu == 'messages')) active_menu @endif" style="margin:20px;">Messages
                             @if(Auth::user()->unread_messages == null)
                                 <span class="d-lg-none badge badge-pill up2 info-gray">0</span>
                             @else
@@ -101,12 +100,12 @@
                     </div>
 
                     <div class="d-lg-none no-grow order-lg-1 nav-menu-item">
-                        <a href="{{url('/profile')}}" class="text-primary" style="margin:20px;">Profile
+                        <a href="{{url('/profile')}}" class="text-primary @if(!empty($menu) && $menu == 'profile')) active_menu @endif" style="margin:20px;">Profile
                         </a>
                     </div>
 
                     <div class="d-lg-none no-grow order-lg-1 nav-menu-item">
-                        <a href="{{url('/settings')}}" class="text-primary" style="margin:20px;">Settings
+                        <a href="{{url('/settings')}}" class="text-primary @if(!empty($menu) && $menu == 'settings')) active_menu @endif" style="margin:20px;">Settings
                         </a>
                     </div>
 
@@ -121,7 +120,7 @@
                             <li class="dropdown d-flex align-items-center">
                                 <a href="#" data-toggle="dropdown" class="d-flex align-items-center">
                                         <span class="avatar w-48">
-                                          <img src="{{Auth::user()->photo}}">
+                                          <img class="w-48" src="{{Auth::user()->photo}}">
                                             @if(Auth::user()->unread_messages == null)
                                                 <span class="badge badge-pill up info-gray">0</span>
                                             @else
@@ -131,13 +130,13 @@
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-right w pt-0 mt-2 animate fadeIn">
                                     <li>
-                                        <a class="dropdown-item" href="{{url('/profile')}}">
+                                        <a class="dropdown-item @if(!empty($menu) && $menu == 'profile')) active_menu @endif" href="{{url('/profile')}} ">
                                             <span>Profile</span>
                                         </a>
                                     </li>
 
                                     <li>
-                                        <a class="dropdown-item" href="{{url('/messages')}}">
+                                        <a class="dropdown-item @if(!empty($menu) && $menu == 'messages')) active_menu @endif" href="{{url('/messages')}}">
                                             <span>Messages</span>
                                         </a>
                                     </li>
@@ -197,26 +196,26 @@
                         </div>
 
                         <div class="nav-menu-item mobile-menu-item">
-                            <h5><a href="{{url('/find')}}" class="text-primary" style="margin:20px;">Find&nbsp;a&nbsp;creator</a>
+                            <h5><a href="{{url('/find')}}" class="text-primary @if(!empty($menu) && $menu == 'find')) active_menu @endif" style="margin:20px;">Find&nbsp;a&nbsp;creator</a>
                             </h5>
                         </div>
 
                         <!--mobile menu-->
                         <div class="d-lg-none no-grow order-lg-1 nav-menu-item mobile-menu-item">
-                            <a href="{{url('/register')}}" class="text-primary" style="margin:20px;">Sign Up</a>
+                            <a href="{{url('/register')}}" class="text-primary @if(!empty($menu) && $menu == 'register')) active_menu @endif" style="margin:20px;">Sign Up</a>
                         </div>
 
                         <div class="d-lg-none no-grow order-lg-1 nav-menu-item mobile-menu-item">
-                            <a href="{{url('/login')}}" class="text-primary" style="margin:20px;">Login</a>
+                            <a href="{{url('/login')}}" class="text-primary @if(!empty($menu) && $menu == 'login')) active_menu @endif" style="margin:20px;">Login</a>
                         </div>
 
-                        <a href="{{url('/register')}}" class="btn btn-rounded btn-sm primary btn-theme lg-hide"
+                        <a href="{{url('/register')}}" class="btn btn-rounded btn-sm primary btn-theme lg-hide @if(!empty($menu) && $menu == 'register')) active_menu @endif"
                            style="margin:20px;">
                             Sign Up
                         </a>
 
                         <a href="{{url('/login')}}"
-                           class="btn btn-outline btn-sm b-primary text-primary btn-theme lg-hide"
+                           class="btn btn-outline btn-sm b-primary text-primary btn-theme lg-hide @if(!empty($menu) && $menu == 'login')) active_menu @endif"
                            style="margin: 20px; padding-left:10px; padding-right:10px;">
                             Log In
                         </a>
@@ -239,7 +238,7 @@
     @yield('content')
 </div>
 
-<div class="p-0">
+<div class="p-0 back-to-top-wrapper">
     <div class="back-to-top-container">
         <h5>
             Back to top &nbsp;
@@ -291,5 +290,12 @@
 
 <!-- endbuild -->
 @yield('script')
+
+<script>
+    @if(Session::has('error'))
+        var error_msg = "{!! Session::get('error') !!}";
+        alert(error_msg);
+    @endif
+</script>
 </body>
 </html>
